@@ -1,0 +1,186 @@
+@page {
+    size: 8.5in 11in;
+    margin: 0in;
+}
+
+.emblem {
+    padding-left: 20px;
+}
+
+p {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding-right: 40px;
+}
+
+h1 {
+    text-align: center;
+    font-size: 35px; 
+    font-family: Arial, Helvetica, sans-serif;
+    margin-bottom: 0;
+    padding-top: 90px;
+}
+
+h3 {
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+    margin: 0;
+}
+
+h4 {
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: left;
+    margin: 0;
+    padding-left: 25px;
+}
+
+h5 {
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: left;
+    margin: 0;
+    padding-top: 8px;
+    padding-left: 28px;
+    padding-bottom: 8px;
+    font-weight: bold;
+}
+
+.sub-rev {
+    text-align: center;
+    margin: 10px;
+}
+
+.spec-desc {
+    text-align: left;
+    padding-right: 10px;
+    margin: 20px;
+}
+
+.box {
+    border: 10px solid black;
+    padding: 2px;
+    margin: 2px auto;
+    max-width: 93%;
+    margin-bottom: 170px;
+}
+
+.inner-box {
+    border: 3px solid black;
+    padding: 0;
+    margin: 2px 0;
+}
+
+.box-title {
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: left;
+    padding-top: 8px;
+    padding-left: 8px;
+    padding-bottom: 6px;
+}
+
+.label-box {
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    padding-left: 6px;
+    display: inline-block;
+}
+
+.label-box2 {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 1px;
+    display: inline-block;
+}
+
+.tab {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+input[type="checkbox"] {
+    width: 5px;
+    height: 5px;
+    margin-right: 2px;
+}
+
+.individual-feedback {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    margin: 0;
+    line-height: 5px;
+}
+
+.people {
+    text-align: left;
+    margin: 0;
+    font-weight: bold;
+    padding-top: 40px;
+    padding-left: 30px;
+    font-size: 17px;
+}
+
+.Rev-Act {
+    margin: 0;
+    padding-left: 27px;
+    padding-top: 3px;
+}
+
+.box-text {
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: left;
+    font-size: 12px;
+    margin: 2px;
+    line-height: 15px;
+    font-weight: bold;
+    padding: 8px;
+}
+
+.name-text {
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: 18px;
+    text-align: right;  
+    margin-right: 45px;
+}
+
+.container {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+}
+
+.left-side {
+    text-align: left;
+    padding-right: 40px;
+}
+
+.right-side {
+    display: flex;
+    margin-right: 8px;
+    flex-direction: column;
+    padding-top: 10px;
+    align-items: right;
+}
+
+.checkbox-container {
+    display: flex; 
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.people-checkbox-container {
+    display: flex; 
+    align-items: center; 
+    margin-bottom: 4px;
+    margin-left: 50px;
+}
+
+.spacer {
+    margin-top: 3em;
+}
+
+.separator-bar {
+    height:1px; 
+    width:97%; 
+    color:black; 
+    background-color:black; 
+    margin-top: 30px;
+}
