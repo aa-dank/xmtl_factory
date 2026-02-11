@@ -32,7 +32,7 @@ def convert_edge(input_html, output_pdf_name):
     print(f"Converted '{input_html}' → '{output_pdf_name}'")
     return output_dir
 
-def main(final_pdf_name):
+def create_final_pdf(final_pdf_name):
     missing = [f for f in HTML_FILES if not Path(f).exists()]
     if missing:
         sys.exit(f"Missing HTML files: {missing}")
@@ -60,10 +60,11 @@ def main(final_pdf_name):
     print(f"\nFinal combined PDF created:")
     print(final_path.resolve())
 
-
+'''
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: python html_to_pdf.py <output.pdf>")
         sys.exit(1)
 
     main(sys.argv[1])
+'''

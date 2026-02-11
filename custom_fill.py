@@ -8,7 +8,7 @@ template_1 = env.get_template('Page1.HTML')
 template_2 = env.get_template('Page2.HTML')
 template_3 = env.get_template('Page3.HTML')
 
-# Input dictionary
+# BASE Input dictionary
 dictionary = {
     'Project_Title': 'Project 3239, Kresge College - Non-academic Renovation Project',
     'Submittal_No': '4-073113-03',
@@ -30,16 +30,17 @@ dictionary = {
 }
 
 # Render outputs
-output_page1 = template_1.render(dictionary)
-output_page2 = template_2.render(dictionary)
-output_page3 = template_3.render(dictionary)
+def render_output(dictionary):
+    output_page1 = template_1.render(dictionary)
+    output_page2 = template_2.render(dictionary)
+    output_page3 = template_3.render(dictionary)
 
-# Write outputs
-with open('output_page1.html', 'w') as f:
-    f.write(output_page1)
-with open('output_page2.html', 'w') as f:
-    f.write(output_page2)
-with open('output_page3.html', 'w') as f:
-    f.write(output_page3)
+    # Write outputs
+    with open('output_page1.html', 'w') as f:
+        f.write(output_page1)
+    with open('output_page2.html', 'w') as f:
+        f.write(output_page2)
+    with open('output_page3.html', 'w') as f:
+        f.write(output_page3)
 
-print("Render Complete!")
+    print("Render Complete!")
