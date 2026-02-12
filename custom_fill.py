@@ -26,7 +26,8 @@ dictionary = {
     'Reviewer_Name_4': '',
     'Reviewer_Name_5': '',
     'Reviewer_Name_6': '',
-    'Reviewer_Name_7': ''
+    'Reviewer_Name_7': '',
+    'test': ''
 }
 
 # Render outputs
@@ -44,3 +45,4 @@ def render_output(dictionary):
         f.write(output_page3)
 
     print("Render Complete!")
+
