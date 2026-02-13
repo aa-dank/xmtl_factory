@@ -1,13 +1,10 @@
 import sys, subprocess
 from pathlib import Path
 from pypdf import PdfWriter
+from custom_fill import HTML_FILES
 
 EDGE_PATH = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
-HTML_FILES = [
-    "output_page1.html",
-    "output_page2.html",
-    "output_page3.html",
-]
+
 
 '''from weasyprint import HTML
 def convert(input_file, output_file):
