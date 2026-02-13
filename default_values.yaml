@@ -1,16 +1,26 @@
 #something about how to enter default values for in yaml file
 
 "10600-012":
-  project_title: "10600-012, Westside Research Park - C0171 Bsl-2 Teaching & Remote Work Lab"
-  contractor: "Dave Sullivan"
+  Project_Title: "10600-012, Westside Research Park - C0171 Bsl-2 Teaching & Remote Work Lab"
+  Submittal_No: "220719-01"
+  Revision_No: "0"
+  Specification: "22 07 19 plumbing piping insulation"
+  Description: "PCI - plumbing insulation"
+  Contractor: "Dave Sullivan"
+  has_EDP: "True"
   EDP_Address_Line_1: "Gordon Prill, Inc."
   EDP_Address_Line_2: "310 E. Caribbean Drive"
   EDP_Address_Line_3: "Sunnyvale, CA 94089"
-  reviewer_list: "Ken Rector, UCSC PPC; Matt DeMonner, UCSC PPC"
+  reviewer_list: "Ken Rector, UCSC PPC;Matt DeMonner, UCSC PPC"
 
 "3238":
-  project_title: "3238, Westside Research Park - C0171 Bsl-2 Teaching & Remote Work Lab"
-  contractor: "Nathan Jensen"
+  Project_Title: "3238, Westside Research Park - C0171 Bsl-2 Teaching & Remote Work Lab"
+  Submittal_No: "4-073113-03"
+  Revision_No: "0"
+  Specification: "07 31 13 Asphalt Shingles"
+  Description: "G3 Provost Shingle Sample"
+  Contractor: "Nathan Jensen"
+  has_EDP: "True"
   EDP_Address_Line_1: "EHDD Architecture"
   EDP_Address_Line_2: "1 Pier Ste 2"
   EDP_Address_Line_3: "San Francisco, CA 94111-2028"
