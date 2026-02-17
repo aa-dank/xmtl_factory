@@ -5,7 +5,7 @@ env = Environment(loader=FileSystemLoader('templates'))
 
 # Retreive templates
 template_1 = env.get_template('Page1.HTML')
-template_2 = env.get_template('Page2 copy.HTML')
+template_2 = env.get_template('Page2.HTML')
 template_3 = env.get_template('Page3.HTML')
 
 # BASE Input dictionary
@@ -33,7 +33,6 @@ def render_output(dictionary):
 
     with open('output_page1.html', 'w') as f:
         f.write(output_page1)
-    
     with open('output_page2.html', 'w') as f:
         f.write(output_page2)
     with open('output_page3.html', 'w') as f:

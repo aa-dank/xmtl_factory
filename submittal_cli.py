@@ -20,8 +20,10 @@ def check_defaults(default_key):
     else:
         console.print(f"\nNo default values found for key: {default_key}", style="red")
         return None
+    
     reviewer_names = default_keys.pop('reviewer_list')
     reviewer_names = [name.strip() for name in reviewer_names.split(";")]
+
     #insert date review ends into dictionary & add reviewer names  as a list to dictionary
     items = list(default_keys.items())
     items.insert(3,('Date_Review_Ends', date.strftime("%m/%d/%Y")))
@@ -54,7 +56,7 @@ def review_dictionary(dictionary):
         return False
     return True
 
-def fill_dictionary(project_number, project_title, submittal_no, rev_no, specification, description, contractor_name, has_EDP, edp_line1, edp_line2, edp_line3, reviewer_names):
+def fill_dictionary(project_number, project_title, submittal_no, rev_no, specification, description, contractor_name, edp_line1, edp_line2, edp_line3, reviewer_names):
     #read inputs into dictionary    
     dictionary = {
         'Project_Title': project_number+", "+ project_title,
@@ -64,7 +66,6 @@ def fill_dictionary(project_number, project_title, submittal_no, rev_no, specifi
         'Specification': specification,
         'Description': description,
         'Contractor': contractor_name,
-        'has_EDP': has_EDP,
         'EDP_Address_Line_1': edp_line1,
         'EDP_Address_Line_2': edp_line2,
         'EDP_Address_Line_3': edp_line3,
@@ -83,20 +84,21 @@ def get_inputs_manual(): #manually gather inputs for project and submittal detai
     contractor_name = click.prompt("Input Contractor Name")
 
     if click.confirm("Does this submittal have an Executive Design Professional (EDP)?", default=False):
-        has_edp = True
         edp_line1 = click.prompt("Input Executive Design Professional Name")
         edp_line2 = click.prompt("Input EDP Address (e.g. 1 Pier Ste 2)")
         edp_line3 = click.prompt("Input EDP City, State, & Zip (e.g. San Francisco, CA 94111-2028)")
     else:
         console.print("No EDP information will be included in the submittal.", style="green")
-        has_edp = False
+        edp_line1 = ""
+        edp_line2 = ""
+        edp_line3 = ""
     
     # gather input for reviewer names
     console.print("\nTO input reviewer names, please input a semicolon delimited list of the reviewer names WITHOUT SPACES", style="bold green")
     console.print("Example: 'David Jessen, UCSC PP;Jeff Clothier, UCSC PP'", style="green")
-    reviewer_names = click.prompt("Input Reviewer Names")
+    reviewer_names = click.prompt("Input Reviewer Names", default='')
     
-    return fill_dictionary(project_number, project_title, submittal_no, rev_no, specification, description, contractor_name, str(has_edp), edp_line1 if has_edp else '', edp_line2 if has_edp else '', edp_line3 if has_edp else '', reviewer_names)
+    return fill_dictionary(project_number, project_title, submittal_no, rev_no, specification, description, contractor_name, edp_line1, edp_line2, edp_line3, reviewer_names)
 
 
 if __name__ == "__main__":
