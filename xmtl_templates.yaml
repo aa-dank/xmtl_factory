@@ -1,12 +1,13 @@
-#something about how to enter default values for in yaml file
+#Add new xmtl templates below with a unique key (e.g. project number)
+#All fields are optional except Project_Title, Submittal_Number, Revision_Number, Specification_Section, and Submittal_Name
 
-"TEMPLATE": # need more clarity on what a template should be accomplishing
+"TEMPLATE":
   Project_Title: ""
-  Submittal_No: ""
-  Revision_No: ""
-  Specification: ""
-  Description: ""
-  Contractor: ""
+  Submittal_Number: ""
+  Revision_Number: ""
+  Specification_Section: ""
+  Submittal_Name: ""
+  Project_Manager: ""
   EDP_Address_Line_1: ""
   EDP_Address_Line_2: ""
   EDP_Address_Line_3: ""
@@ -14,11 +15,11 @@
 
 "10600-012":
   Project_Title: "10600-012, Westside Research Park - C0171 Bsl-2 Teaching & Remote Work Lab"
-  Submittal_No: "220719-01"
-  Revision_No: "0"
-  Specification: "22 07 19 plumbing piping insulation"
-  Description: "PCI - plumbing insulation"
-  Contractor: "Dave Sullivan"
+  Submittal_Number: "220719-01"
+  Revision_Number: "0"
+  Specification_Section: "22 07 19 plumbing piping insulation"
+  Submittal_Name: "PCI - plumbing insulation"
+  Project_Manager: "Dave Sullivan"
   EDP_Address_Line_1: "Gordon Prill, Inc."
   EDP_Address_Line_2: "310 E. Caribbean Drive"
   EDP_Address_Line_3: "Sunnyvale, CA 94089"
@@ -26,11 +27,11 @@
 
 "3238":
   Project_Title: "3238, Westside Research Park - C0171 Bsl-2 Teaching & Remote Work Lab"
-  Submittal_No: "4-073113-03"
-  Revision_No: "0"
-  Specification: "07 31 13 Asphalt Shingles"
-  Description: "G3 Provost Shingle Sample"
-  Contractor: "Nathan Jensen"
+  Submittal_Number: "4-073113-03"
+  Revision_Number: "0"
+  Specification_Section: "07 31 13 Asphalt Shingles"
+  Submittal_Name: "G3 Provost Shingle Sample"
+  Project_Manager: "Nathan Jensen"
   EDP_Address_Line_1: "EHDD Architecture"
   EDP_Address_Line_2: "1 Pier Ste 2"
   EDP_Address_Line_3: "San Francisco, CA 94111-2028"
@@ -38,11 +39,11 @@
 
 "testing_no_edp":
   Project_Title: "3238, Westside Research Park - C0171 Bsl-2 Teaching & Remote Work Lab"
-  Submittal_No: "4-073113-03"
-  Revision_No: "0"
-  Specification: "07 31 13 Asphalt Shingles"
-  Description: "G3 Provost Shingle Sample"
-  Contractor: "Nathan Jensen"
+  Submittal_Number: "4-073113-03"
+  Revision_Number: "0"
+  Specification_Section: "07 31 13 Asphalt Shingles"
+  Submittal_Name: "G3 Provost Shingle Sample"
+  Project_Manager: "Nathan Jensen"
   EDP_Address_Line_1: ""
   EDP_Address_Line_2: ""
   EDP_Address_Line_3: ""

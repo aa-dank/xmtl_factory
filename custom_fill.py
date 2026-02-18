@@ -11,17 +11,17 @@ template_3 = env.get_template('Page3.HTML')
 
 # BASE Input dictionary
 dictionary = {
-    'Project_Title': '',            #Project 3239, Kresge College - Non-academic Renovation Project
-    'Submittal_No': '',             #4-073113-03
-    'Revision_No': '',              #0
+    'Project_Title': '',              #Project 3239, Kresge College - Non-academic Renovation Project
+    'Submittal_Number': '',           #4-073113-03
+    'Revision_Number': '',            #0
     'Date_Review_Ends': datetime.now() + timedelta(weeks=2),
-    'Specification': '',            #07 31 13 Asphalt Shingles
-    'Description': '',              #G3 Provost Shingle Sample
-    'Contractor': '',               #Nathan Jensen
-    'EDP_Address_Line_1': '',       #EHDD Architecture
-    'EDP_Address_Line_2': '',       #1 Pier Ste 2
-    'EDP_Address_Line_3': '',       #San Francisco, CA 94111-2028
-    'Reviewer_Name_1': ''           #Matt DeMonner, UCSC PPC
+    'Specification_Section': '',      #07 31 13 Asphalt Shingles
+    'Submittal_Name': '',             #G3 Provost Shingle Sample
+    'Project_Manager': '',            #Nathan Jensen
+    'EDP_Address_Line_1': '',         #EHDD Architecture
+    'EDP_Address_Line_2': '',         #1 Pier Ste 2
+    'EDP_Address_Line_3': '',         #San Francisco, CA 94111-2028
+    'Reviewer_Name_1': ''             #Matt DeMonner, UCSC PPC
 }
 HTML_FILES = []
 
