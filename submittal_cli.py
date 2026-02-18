@@ -10,13 +10,42 @@ console = Console()
 
 
 class XmtlBuildField:
-    def __init__(self, name, value, prompt, required = False):
+    """A single data field on a transmittal build.
+
+    Holds the field's name, current value, and CLI prompt text. Optionally
+    enforces a non-empty value at prompt time and applies a processor function
+    to transform the raw value before it is used in rendering.
+    """
+
+    def __init__(self, name, value, prompt, required=False, processor=None):
+        """Initialise the field.
+
+        Args:
+            name:      Key used in the render dictionary (e.g. 'Submittal_Number').
+            value:     Initial value, typically loaded from a template or left empty.
+            prompt:    Text shown to the user when prompting for input.
+            required:  If True, fill_field will loop until a non-empty value is entered.
+            processor: Optional callable (value: str) -> Any applied by processed_value.
+        """
         self.name = name
         self.value = value
         self.prompt = prompt
         self.required = required
+        self._processor = processor
+
+    @property
+    def processed_value(self):
+        """Return processor(value) if a processor is defined, otherwise return raw value."""
+        if self._processor and self.value:
+            return self._processor(self.value)
+        return self.value
 
     def fill_field(self):
+        """Prompt the user for a value if the field is currently empty.
+
+        For required fields, the prompt repeats until a non-empty value is given.
+        For optional fields, the user may press Enter to leave the field blank.
+        """
         if not self.value:
             if self.required:
                 while not self.value:
@@ -27,9 +56,23 @@ class XmtlBuildField:
                 self.value = click.prompt(self.prompt, default="")
 
 class XmtlBuild:
+    """Represents all data needed to generate a submittal transmittal PDF.
+
+    Each piece of data is stored as an XmtlBuildField, which carries its own
+    prompt text, required flag, and optional processor. The class supports
+    loading pre-filled data from an xmtl_templates.yaml entry and interactively
+    prompting the user for any fields that are still empty.
+    """
+
     def __init__(self, project_number="", project_title="", submittal_number="", revision_number="",
                  specification_section="", submittal_name="",
                  project_manager_name="", edp_line1="", edp_line2="", edp_line3="", reviewer_names=""):
+        """Initialise all fields. All arguments are optional and default to empty string.
+
+        Required fields (project_number, project_title, submittal_number, revision_number,
+        specification_section, submittal_name) must be non-empty before to_render_dict()
+        is called — validate() or fill_all_fields() will surface any gaps.
+        """
         self.project_number        = XmtlBuildField("Project_Number",        project_number,        "Input Project Number",        required=True)
         self.project_title         = XmtlBuildField("Project_Title",         project_title,         "Input Project Title",         required=True)
         self.submittal_number      = XmtlBuildField("Submittal_Number",      submittal_number,      "Input Submittal Number",      required=True)
@@ -40,7 +83,12 @@ class XmtlBuild:
         self.edp_line1             = XmtlBuildField("EDP_Address_Line_1",    edp_line1,             "Input EDP Name")
         self.edp_line2             = XmtlBuildField("EDP_Address_Line_2",    edp_line2,             "Input EDP Address")
         self.edp_line3             = XmtlBuildField("EDP_Address_Line_3",    edp_line3,             "Input EDP City, State, Zip")
-        self.reviewer_names        = XmtlBuildField("Reviewer_Names",        reviewer_names,        "Input Reviewer Names (semicolon-delimited)")
+        self.reviewer_names        = XmtlBuildField(
+            "Reviewer_Names",
+            reviewer_names,
+            "Input Reviewer Names (semicolon-delimited)",
+            processor=lambda v: [name.strip() for name in v.split(";") if name.strip()]
+        )
 
     @classmethod
     def empty(cls):
@@ -49,6 +97,19 @@ class XmtlBuild:
 
     @classmethod
     def from_yaml(cls, yaml_path, key):
+        """Load an XmtlBuild from a keyed entry in an xmtl_templates.yaml file.
+
+        Args:
+            yaml_path: Path to the YAML templates file.
+            key:       Top-level key identifying the template entry (e.g. '3238').
+
+        Raises:
+            KeyError: If the key is not present in the file.
+
+        Note:
+            Project_Title in the YAML is stored as "number, title" and is split
+            back into project_number and project_title on load.
+        """
         with open(yaml_path, "r") as f:
             defaults = yaml.safe_load(f)
         if key not in defaults:
@@ -81,6 +142,7 @@ class XmtlBuild:
 
     @property
     def has_edp(self):
+        """True if an Executive Design Professional name has been provided."""
         return bool(self.edp_line1.value)
 
     def fill_all_fields(self):
@@ -114,13 +176,21 @@ class XmtlBuild:
             "EDP_Address_Line_2":   self.edp_line2.value,
             "EDP_Address_Line_3":   self.edp_line3.value,
         }
-        names = [] if not self.reviewer_names.value else [name.strip() for name in self.reviewer_names.value.split(";")]
-        for i, name in enumerate(names, start=1):
+        for i, name in enumerate(self.reviewer_names.processed_value or [], start=1):
             d[f"Reviewer_Name_{i}"] = name
         return d
 
 
 def review_dictionary(dictionary, title):
+    """Print a Rich table summarising a render dictionary then ask the user to confirm.
+
+    Args:
+        dictionary: The key/value pairs to display.
+        title:      Table heading shown to the user.
+
+    Returns:
+        True if the user confirms, False if they cancel.
+    """
     table = Table(title=title)
     table.add_column("Field", style="#333FFF", no_wrap=True)
     table.add_column("Input", style="#8691F6")
