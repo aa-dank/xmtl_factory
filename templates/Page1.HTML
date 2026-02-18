@@ -20,11 +20,11 @@
         <hr style="height:3px;width:96%;color:black;background-color:black" />
         <h3><strong>{{ Project_Title }}</strong></h3>
 
-        <p class="sub-rev"><br><br><b>Submittal No: </b>{{ Submittal_No }} R{{ Revision_No }}</p>
+        <p class="sub-rev"><br><br><b>Submittal No: </b>{{ Submittal_Number }} R{{ Revision_Number }}</p>
         <p class="sub-rev"><b>Review Ends on {{ Date_Review_Ends }}</b></p>
         
-        <p class="spec-desc"><b>Specification: </b>{{ Specification }}</p>
-        <p class="spec-desc"><b>Description: </b>{{ Description }}</p>
+        <p class="spec-desc"><b>Specification: </b>{{ Specification_Section }}</p>
+        <p class="spec-desc"><b>Description: </b>{{ Submittal_Name }}</p>
 
         <h1>Official Response</h1>
 
@@ -58,7 +58,7 @@
 
                     <div class="right-side">
                         <hr style="height:1px; width:120%; color:black; background-color:black;" id="name" />
-                        <label for="name" class="name-text">{{ Contractor }}</label>
+                        <label for="name" class="name-text">{{ Project_Manager }}</label>
                     </div>
                     
                 </div>

@@ -19,19 +19,19 @@ class XmtlBuildField:
             self.value = click.prompt(self.prompt)
 
 class XmtlBuild:
-    def __init__(self, project_number, project_title, submittal_no, rev_no, specification, description,
-                 contractor_name="", edp_line1="", edp_line2="", edp_line3="", reviewer_names=""):
-        self.project_number = XmtlBuildField("Project_Number", project_number, "Input Project Number")
-        self.project_title = XmtlBuildField("Project_Title", project_title, "Input Project Title")
-        self.submittal_no = XmtlBuildField("Submittal_No", submittal_no, "Input Submittal Number")
-        self.rev_no = XmtlBuildField("Revision_No", rev_no, "Input Revision Number")
-        self.specification = XmtlBuildField("Specification", specification, "Input Specification")
-        self.description = XmtlBuildField("Description", description, "Input Description")
-        self.contractor_name = XmtlBuildField("Contractor", contractor_name, "Input Contractor Name")
-        self.edp_line1 = XmtlBuildField("EDP_Address_Line_1", edp_line1, "Input EDP Address Line 1")
-        self.edp_line2 = XmtlBuildField("EDP_Address_Line_2", edp_line2, "Input EDP Address Line 2")
-        self.edp_line3 = XmtlBuildField("EDP_Address_Line_3", edp_line3, "Input EDP Address Line 3")
-        self.reviewer_names = XmtlBuildField("Reviewer_Names", reviewer_names, "Input Reviewer Names")
+    def __init__(self, project_number, project_title, submittal_number, revision_number, specification_section, submittal_name,
+                 project_manager_name="", edp_line1="", edp_line2="", edp_line3="", reviewer_names=""):
+        self.project_number       = XmtlBuildField("Project_Number",       project_number,       "Input Project Number")
+        self.project_title        = XmtlBuildField("Project_Title",        project_title,        "Input Project Title")
+        self.submittal_number     = XmtlBuildField("Submittal_Number",     submittal_number,     "Input Submittal Number")
+        self.revision_number      = XmtlBuildField("Revision_Number",      revision_number,      "Input Revision Number")
+        self.specification_section = XmtlBuildField("Specification_Section", specification_section, "Input Specification Section")
+        self.submittal_name       = XmtlBuildField("Submittal_Name",       submittal_name,       "Input Submittal Name")
+        self.project_manager_name = XmtlBuildField("Project_Manager",      project_manager_name, "Input Project Manager Name")
+        self.edp_line1            = XmtlBuildField("EDP_Address_Line_1",   edp_line1,            "Input EDP Address Line 1")
+        self.edp_line2            = XmtlBuildField("EDP_Address_Line_2",   edp_line2,            "Input EDP Address Line 2")
+        self.edp_line3            = XmtlBuildField("EDP_Address_Line_3",   edp_line3,            "Input EDP Address Line 3")
+        self.reviewer_names       = XmtlBuildField("Reviewer_Names",       reviewer_names,       "Input Reviewer Names")
 
     @classmethod
     def empty(cls):
@@ -50,17 +50,17 @@ class XmtlBuild:
         project_number = title_parts[0] if len(title_parts) > 1 else ""
         project_title  = title_parts[1] if len(title_parts) > 1 else title_parts[0]
         return cls(
-            project_number  = project_number,
-            project_title   = project_title,
-            submittal_no    = d.get("Submittal_No", ""),
-            rev_no          = d.get("Revision_No", ""),
-            specification   = d.get("Specification", ""),
-            description     = d.get("Description", ""),
-            contractor_name = d.get("Contractor", ""),
-            edp_line1       = d.get("EDP_Address_Line_1", ""),
-            edp_line2       = d.get("EDP_Address_Line_2", ""),
-            edp_line3       = d.get("EDP_Address_Line_3", ""),
-            reviewer_names  = d.get("reviewer_list", ""),
+            project_number       = project_number,
+            project_title        = project_title,
+            submittal_number     = d.get("Submittal_Number", ""),
+            revision_number      = d.get("Revision_Number", ""),
+            specification_section = d.get("Specification_Section", ""),
+            submittal_name       = d.get("Submittal_Name", ""),
+            project_manager_name = d.get("Project_Manager", ""),
+            edp_line1            = d.get("EDP_Address_Line_1", ""),
+            edp_line2            = d.get("EDP_Address_Line_2", ""),
+            edp_line3            = d.get("EDP_Address_Line_3", ""),
+            reviewer_names       = d.get("reviewer_list", ""),
         )
 
     @property
@@ -69,8 +69,8 @@ class XmtlBuild:
 
     def fill_all_fields(self):
         """Prompt for any fields that are still empty."""
-        for field in [self.project_number, self.project_title, self.submittal_no,
-                      self.rev_no, self.specification, self.description, self.contractor_name]:
+        for field in [self.project_number, self.project_title, self.submittal_number,
+                      self.revision_number, self.specification_section, self.submittal_name, self.project_manager_name]:
             field.fill_field()
 
         if click.confirm("Does this submittal have an Executive Design Professional (EDP)?", default=False):
@@ -87,16 +87,16 @@ class XmtlBuild:
     def to_render_dict(self):
         """Produce the flat dictionary that render_output() expects."""
         d = {
-            "Project_Title":      f"{self.project_number.value}, {self.project_title.value}",
-            "Submittal_No":       self.submittal_no.value,
-            "Revision_No":        self.rev_no.value,
-            "Date_Review_Ends":   (datetime.now() + timedelta(weeks=2)).strftime("%m/%d/%Y"),
-            "Specification":      self.specification.value,
-            "Description":        self.description.value,
-            "Contractor":         self.contractor_name.value,
-            "EDP_Address_Line_1": self.edp_line1.value,
-            "EDP_Address_Line_2": self.edp_line2.value,
-            "EDP_Address_Line_3": self.edp_line3.value,
+            "Project_Title":        f"{self.project_number.value}, {self.project_title.value}",
+            "Submittal_Number":     self.submittal_number.value,
+            "Revision_Number":      self.revision_number.value,
+            "Date_Review_Ends":     (datetime.now() + timedelta(weeks=2)).strftime("%m/%d/%Y"),
+            "Specification_Section": self.specification_section.value,
+            "Submittal_Name":       self.submittal_name.value,
+            "Project_Manager":      self.project_manager_name.value,
+            "EDP_Address_Line_1":   self.edp_line1.value,
+            "EDP_Address_Line_2":   self.edp_line2.value,
+            "EDP_Address_Line_3":   self.edp_line3.value,
         }
         for i, name in enumerate(self.reviewer_names.value.split(";"), start=1):
             d[f"Reviewer_Name_{i}"] = name.strip()
@@ -125,14 +125,16 @@ if __name__ == "__main__":
     console.print("Project & Submittal Details", style="green")
 
     default_key = str(click.prompt(
-        "To use default values, input the default key (e.g. 3238), otherwise just hit enter to input values manually",
+        "To use an xmtl template, input the template key (e.g. 3238), otherwise just hit enter to input values manually",
         default=""
     ).strip())
 
     if default_key:
         try:
-            build = XmtlBuild.from_yaml("default_values.yaml", default_key)
-            console.print(f"\nSummary of Default Values for key {default_key}:", style="bold green")
+            build = XmtlBuild.from_yaml("xmtl_templates.yaml", default_key)
+            console.print(f"\nXmtl template '{default_key}' loaded. You will be prompted for any missing values.\n", style="bold green")
+            build.fill_all_fields()
+            console.print("\nSummary of Submittal Inputs", style="bold green")
         except KeyError as e:
             console.print(str(e), style="red")
             exit()
