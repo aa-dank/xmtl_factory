@@ -1,6 +1,9 @@
 # ===== Python cache =====
 __pycache__/
 *.pyc
+.venv/
+uv.lock
+.python-version
 
 # ===== Examples =====
 examples/
