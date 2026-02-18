@@ -1,5 +1,17 @@
 #something about how to enter default values for in yaml file
 
+"TEMPLATE": # need more clarity on what a template should be accomplishing
+  Project_Title: ""
+  Submittal_No: ""
+  Revision_No: ""
+  Specification: ""
+  Description: ""
+  Contractor: ""
+  EDP_Address_Line_1: ""
+  EDP_Address_Line_2: ""
+  EDP_Address_Line_3: ""
+  reviewer_list: ""
+
 "10600-012":
   Project_Title: "10600-012, Westside Research Park - C0171 Bsl-2 Teaching & Remote Work Lab"
   Submittal_No: "220719-01"
@@ -24,7 +36,7 @@
   EDP_Address_Line_3: "San Francisco, CA 94111-2028"
   reviewer_list: "David Jessen, UCSC PP"
 
-"328":
+"testing_no_edp":
   Project_Title: "3238, Westside Research Park - C0171 Bsl-2 Teaching & Remote Work Lab"
   Submittal_No: "4-073113-03"
   Revision_No: "0"
@@ -34,4 +46,5 @@
   EDP_Address_Line_1: ""
   EDP_Address_Line_2: ""
   EDP_Address_Line_3: ""
-  reviewer_list: ""
+  reviewer_list: "Matt DeMonner, UCSC PPC"
+
