@@ -10,7 +10,8 @@ def convert(input_file, output_file):
     HTML(input_file).write_pdf(output_file)
     print(f"Converted '{input_file}' to '{output_file}'")
 '''
-
+# Alternative method to convert HTML to PDF 
+# using Microsoft Edge's headless PDF generation
 def convert_edge(input_html, output_pdf_name):
     input_path = Path(input_html).resolve()
     output_dir = Path(output_pdf_name).resolve() #seperate folder for output pdf files
@@ -28,6 +29,7 @@ def convert_edge(input_html, output_pdf_name):
     print(f"Converted '{input_html}' → '{output_pdf_name}'")
     return output_dir
 
+# converts each html file to a pdf and merges them into a single final pdf
 def create_final_pdf(final_pdf_name, HTML_FILES):
     missing = [f for f in HTML_FILES if not Path(f).exists()]
     if missing:

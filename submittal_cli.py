@@ -21,10 +21,8 @@ def check_defaults(default_key):
         console.print(f"\nNo default values found for key: {default_key}", style="red")
         return None
     
+    #insert date review ends into dictionary & add reviewer names into dictionary with correct formatting
     reviewer_names = default_keys.pop('reviewer_list')
-    print(reviewer_names)
-
-    #insert date review ends into dictionary & add reviewer names  as a list to dictionary
     items = list(default_keys.items())
     items.insert(3,('Date_Review_Ends', date.strftime("%m/%d/%Y")))
     
@@ -34,20 +32,14 @@ def check_defaults(default_key):
     
     return default_keys
 
-def review_dictionary(dictionary):
-    print(dictionary)
-    #print out summary of inputs into a table
-    table = Table(title="Submittal Details")
+def review_dictionary(dictionary, title): #print out summary of inputs into a table
+    table = Table(title=title)
     table.add_column("Field", style="#333FFF", no_wrap=True)
     table.add_column("Input", style="#8691F6")
-    for key, value in dictionary.items():
-        # If value is a list → iterate through it
-        if isinstance(value, list):
-            for i, item in enumerate(value, start=1):
-                table.add_row(f"{key} {i}", str(item))
-        else:
-            table.add_row(key, str(value))
 
+    #add rows to table for each key and print it out
+    for key, value in dictionary.items():
+        table.add_row(key, str(value))
     console.print(table)
 
     #confirm with user that inputs are correct before proceeding
@@ -72,8 +64,9 @@ def fill_dictionary(project_number, project_title, submittal_no, rev_no, specifi
         'EDP_Address_Line_1': edp_line1,
         'EDP_Address_Line_2': edp_line2,
         'EDP_Address_Line_3': edp_line3,
-        #'Reviewer_Names': reviewer_names.split(";")
     }
+
+    # add reviewer names into dictionary as separate key value pairs
     for reviewer in  reviewer_names.split(";"):
         dictionary[f'Reviewer_Name_{reviewer_names.split(";").index(reviewer)+1}'] = reviewer.strip()
 
@@ -88,11 +81,12 @@ def get_inputs_manual(): #manually gather inputs for project and submittal detai
     description = click.prompt("Input Description")
     contractor_name = click.prompt("Input Contractor Name")
 
+    # check if submittal has EDP information and gather inputs if so
     if click.confirm("Does this submittal have an Executive Design Professional (EDP)?", default=False):
         edp_line1 = click.prompt("Input Executive Design Professional Name")
         edp_line2 = click.prompt("Input EDP Address (e.g. 1 Pier Ste 2)")
         edp_line3 = click.prompt("Input EDP City, State, & Zip (e.g. San Francisco, CA 94111-2028)")
-    else:
+    else: # otherwise leave EDP fields blank 
         console.print("No EDP information will be included in the submittal.", style="green")
         edp_line1 = ""
         edp_line2 = ""
@@ -114,41 +108,32 @@ if __name__ == "__main__":
     #ask user if they want to use default values 
     default_key = str(click.prompt("To use default values, input the default key (e.g. 3238), otherwise just hit enter to input values manually", default="").strip())
     if default_key: 
-        default_dict = check_defaults(default_key)
-        if default_dict:
+        #check if default key exists in yaml file 
+        default_dict = check_defaults(default_key) 
+        if default_dict: 
+            # if input key exists, print out summary of default values and confirm with user before proceeding
             console.print(f"\nSummary of Default Values for key {default_key}:", style="bold green")
-            if review_dictionary(default_dict):
-                dictionary = default_dict  
+            if review_dictionary(default_dict, "Default Values"):
+                dictionary = default_dict
+
             else: exit()     
-    else:
+    else: # if user does not want to use default values, proceed with manual input 
         console.print("\nProceeding with manual input", style="green")
         dictionary = get_inputs_manual()
-        print(dictionary)
+        
+        # print out summary of manual inputs and confirm with user before proceeding
+        console.print("\nSummary of Submittal Inputs", style="bold green")
+        if review_dictionary(dictionary, "Submittal Details"):
+            pass
+        else: exit()
 
-    console.print("\nSummary of Submittal Inputs", style="bold green")
-    if review_dictionary(dictionary):
-        HTML_FILES = render_output(dictionary)
-        final_pdf_name = click.prompt("Input name for final submittal file")
-        create_final_pdf(final_pdf_name, HTML_FILES)
+    # render outputs and create final pdf
+    HTML_FILES = render_output(dictionary)
+    final_pdf_name = click.prompt("Input name for final submittal file")
+    create_final_pdf(final_pdf_name, HTML_FILES)
 
 
 
-
-
-# gather inputs for project and submittal details
-'''@click.command()
-@click.option('--project_number', prompt='Input Project Number', help='Project Number, e.g. 3239')
-@click.option('--project_title', prompt='Input Project Title', help='Project Title, e.g. Kresege COllege - Non-academic Renovation Project')
-@click.option('--submittal_no', prompt='Input Submittal Number', help='Submittal Number, e.g. 4-073113-03')
-@click.option('--rev_no', prompt='Input Revison Number', help='Revison Number, e.g. 0')
-@click.option('--specification', prompt='Input Specification', help='Specification, e.g. 07 31 13 Asphalt Shingles')
-@click.option('--description', prompt='Input Description', help='Description, e.g. G3 Provost Shingle Sample')
-@click.option('--contractor_name', prompt='Input Contractor Name', help='Contractor Name, e.g. Nathan Jenson')
-@click.option('--edp_line1', prompt='Input Executive Design Professional Name', help='EDP Address, e.g. EHDD Architecture')
-@click.option('--edp_line2', prompt='Input EDP Address (e.g. 1 Pier Ste 2)', help='EDP Address, e.g. 1 Pier Ste 2')
-@click.option('--edp_line3', prompt='Input EDP City, State, & Zip (e.g. San Francisco, CA 94111-2028)', help='EDP Address, e.g. San Francisco, CA 94111-2028')
-#project_number, project_title, submittal_no, rev_no, specification, description, contractor_name, edp_line1, edp_line2, edp_line3
-'''
 
 
 

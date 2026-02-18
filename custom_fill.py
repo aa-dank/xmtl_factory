@@ -1,5 +1,6 @@
 from jinja2 import Environment, FileSystemLoader
 from datetime import datetime, timedelta
+from pathlib import Path
 
 env = Environment(loader=FileSystemLoader('templates'))
 
@@ -16,17 +17,20 @@ dictionary = {
     'Date_Review_Ends': datetime.now() + timedelta(weeks=2),
     'Specification': '',            #07 31 13 Asphalt Shingles
     'Description': '',              #G3 Provost Shingle Sample
-    #'Contractor': '',               #Nathan Jensen
-    'EDP_Address_Line_1': 'dddd',       #EHDD Architecture
+    'Contractor': '',               #Nathan Jensen
+    'EDP_Address_Line_1': '',       #EHDD Architecture
     'EDP_Address_Line_2': '',       #1 Pier Ste 2
     'EDP_Address_Line_3': '',       #San Francisco, CA 94111-2028
-    'Reviewer_Name_1': 'Ken Rector, UCSC PPC', 
-    'Reviewer_Name_2': 'Met DeMonner, UCSC PPC',
+    'Reviewer_Name_1': ''           #Matt DeMonner, UCSC PPC
 }
 HTML_FILES = []
 
 # Render outputs
 def render_output(dictionary):
+    # Clean up old output files
+    for old_file in Path('.').glob('output_*.html'):
+        old_file.unlink()
+    
     HTML_FILES = []
     consultant_review_dict = {}
     # create list of reviewer names & remove from main dictionary 
