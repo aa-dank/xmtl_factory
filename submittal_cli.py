@@ -69,6 +69,7 @@ class XmtlBuildField:
         """
         if not self.value:
             self.value = click.prompt(self.prompt, default="")
+            #console.print(f"{self.name} set to: {self.processed_value} \n", style="green")
 
 class XmtlBuild:
     """Represents all data needed to generate a submittal transmittal PDF.
@@ -88,13 +89,13 @@ class XmtlBuild:
         specification_section, submittal_name) must be non-empty before to_render_dict()
         is called — validate() or fill_all_fields() will surface any gaps.
         """
-        self.project_number        = XmtlBuildField("Project_Number",        project_number,        "Input Project Number",        required=True)
+        self.project_number        = XmtlBuildField("Project_Number",        project_number,        "Input Project Number (e.g. 3238)",        required=True)
         self.project_title         = XmtlBuildField("Project_Title",         project_title,         "Input Project Title",         required=True)
         self.submittal_number      = XmtlBuildField("Submittal_Number",      submittal_number,      "Input Submittal Number",      required=True)
         self.revision_number       = XmtlBuildField(
             "Revision_Number",
             revision_number,
-            "Input Revision Number",
+            "Input Revision Number, if left blank auto-populated with 0",
             required=True,
             processor=lambda v: v.strip() if v.strip() else "0"
         )
@@ -108,12 +109,12 @@ class XmtlBuild:
         )
         self.project_manager_name  = XmtlBuildField("Project_Manager",       project_manager_name,  "Input Project Manager Name")
         self.edp_line1             = XmtlBuildField("EDP_Address_Line_1",    edp_line1,             "Input EDP Name")
-        self.edp_line2             = XmtlBuildField("EDP_Address_Line_2",    edp_line2,             "Input EDP Address")
+        self.edp_line2             = XmtlBuildField("EDP_Address_Line_2",    edp_line2,             "Input EDP Address Line")
         self.edp_line3             = XmtlBuildField("EDP_Address_Line_3",    edp_line3,             "Input EDP City, State, Zip")
         self.reviewer_names        = XmtlBuildField(
             "Reviewer_Names",
             reviewer_names,
-            "Input Reviewer Names (semicolon-delimited)",
+            "Input Reviewer Names (semicolon-delimited) (e.g. 'David Jessen, UCSC PP;Jeff Clothier, UCSC PP')",
             processor=lambda v: [name.strip() for name in v.split(";") if name.strip()]
         )
 
@@ -192,6 +193,8 @@ class XmtlBuild:
             field.fill_field()
 
         if click.confirm("Does this submittal have an Executive Design Professional (EDP)?", default=False):
+            console.print("\nExample for how to input EDP information: ", style="yellow")
+            console.print("\tEHDD Architecture\n\t1 Pier Ste 2\n\tSan Francisco, CA 94111-2028", style="yellow")
             self.edp_line1.fill_field()
             self.edp_line2.fill_field()
             self.edp_line3.fill_field()
@@ -260,35 +263,42 @@ def review_dictionary(dictionary, title):
 
 if __name__ == "__main__":
     console.print("Welcome to the Submittal Generator!\n", style="bold green")
-    console.print("Project & Submittal Details", style="green")
 
-    default_key = str(click.prompt(
-        "To use an xmtl template, input the template key (e.g. 3238), otherwise just hit enter to input values manually",
-        default=""
-    ).strip())
+    console.print("This tool is designed to streamline the creation of submittal documents.\nTo use you can either use a pre-defined template or input values manually.", style="green")
+    console.print("If manual input is chosen, you will be prompted to enter various project and submittal details.", style="green")
+    console.print("To find more details about the expected input for each field, refer to the yaml file for examples of inputs for each field.\n", style="green")
+    
+    console.print("This generator will continue until you choose to exit by [CTRL+C]\n", style="red")
 
-    if default_key:
-        try:
-            build = XmtlBuild.from_yaml("xmtl_templates.yaml", default_key)
-            console.print(f"\nXmtl template '{default_key}' loaded. You will be prompted for any missing values.\n", style="bold green")
+    console.print("Project & Submittal Details", style="bold yellow")
+    while True:
+        default_key = str(click.prompt(
+            "To use an xmtl template, input the template key (e.g. 3238), otherwise just hit enter to input values manually",
+            default=""
+        ).strip())
+
+        if default_key:
+            try:
+                build = XmtlBuild.from_yaml("xmtl_templates.yaml", default_key)
+                console.print(f"\nXmtl template '{default_key}' loaded. You will be prompted for any missing values.\n", style="bold green")
+                build.fill_all_fields()
+                console.print("\nSummary of Submittal Inputs", style="bold green")
+            except KeyError as e:
+                console.print(str(e), style="red")
+                exit()
+        else:
+            console.print("\nProceeding with manual input...", style="green")
+            build = XmtlBuild.empty()
             build.fill_all_fields()
-            console.print("\nSummary of Submittal Inputs", style="bold green")
-        except KeyError as e:
-            console.print(str(e), style="red")
+            console.print("\nSummary of Submittal Inputs", style="bold yellow")
+
+        dictionary = build.to_render_dict()
+        if not review_dictionary(dictionary, "Submittal Details"):
             exit()
-    else:
-        console.print("\nProceeding with manual input", style="green")
-        build = XmtlBuild.empty()
-        build.fill_all_fields()
-        console.print("\nSummary of Submittal Inputs", style="bold green")
 
-    dictionary = build.to_render_dict()
-    if not review_dictionary(dictionary, "Submittal Details"):
-        exit()
-
-    HTML_FILES = render_output(dictionary)
-    final_pdf_name = click.prompt("Input name for final submittal file")
-    create_final_pdf(final_pdf_name, HTML_FILES)
+        HTML_FILES = render_output(dictionary)
+        final_pdf_name = click.prompt("Input name for final submittal file")
+        create_final_pdf(final_pdf_name, HTML_FILES)
 
 
 
