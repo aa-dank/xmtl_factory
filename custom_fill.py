@@ -1,5 +1,4 @@
 from jinja2 import Environment, FileSystemLoader
-from datetime import datetime, timedelta
 from pathlib import Path
 
 env = Environment(loader=FileSystemLoader('templates'))
@@ -9,22 +8,6 @@ template_1 = env.get_template('Page1.HTML')
 template_2 = env.get_template('Page2.HTML')
 template_3 = env.get_template('Page3.HTML')
 
-# BASE Input dictionary
-dictionary = {
-    'Project_Title': '',              #Project 3239, Kresge College - Non-academic Renovation Project
-    'Submittal_Number': '',           #4-073113-03
-    'Revision_Number': '',            #0
-    'Date_Review_Ends': datetime.now() + timedelta(weeks=2),
-    'Specification_Section': '',      #07 31 13 Asphalt Shingles
-    'Submittal_Name': '',             #G3 Provost Shingle Sample
-    'Project_Manager': '',            #Nathan Jensen
-    'EDP_Address_Line_1': '',         #EHDD Architecture
-    'EDP_Address_Line_2': '',         #1 Pier Ste 2
-    'EDP_Address_Line_3': '',         #San Francisco, CA 94111-2028
-    'Reviewer_Name_1': ''             #Matt DeMonner, UCSC PPC
-}
-HTML_FILES = []
-
 # Render outputs
 def render_output(dictionary):
     # Clean up old output files
@@ -32,18 +15,18 @@ def render_output(dictionary):
         old_file.unlink()
     
     HTML_FILES = []
-    consultant_review_dict = {}
     # create list of reviewer names & remove from main dictionary 
     remaining_distribution_emails = [
         value for key, value in dictionary.items() if key.startswith('Reviewer_Name')
     ]
-    remaining_distribution_emails.append('')  # Ensure there's always a blank slot for the last reviewer
+    # Always ensure at least one blank reviewer slot before any pages consume names
+    remaining_distribution_emails.append('')
     dictionary = {
-        key: value for key, value in dictionary.items()if not (key.startswith('Reviewer_Name'))
+        key: value for key, value in dictionary.items() if not key.startswith('Reviewer_Name')
     }
 
-    # Render page 1 
-    output_page1 = template_1.render(**dictionary, **consultant_review_dict)
+    # Render page 1
+    output_page1 = template_1.render(**dictionary)
     with open('output_page1.html', 'w') as f:
         f.write(output_page1)
     HTML_FILES.append('output_page1.html')
@@ -66,7 +49,7 @@ def render_output(dictionary):
             # if there are still remaining distribution emails, add them to the consultant review dict
             consultant_review_dict['Reviewer_Name_3'] = remaining_distribution_emails.pop(0)
 
-        output_page2 = template_2.render(consultant_review_dict)
+        output_page2 = template_2.render(**consultant_review_dict)
         with open('output_page2.html', 'w') as f:
             f.write(output_page2)
         HTML_FILES.append('output_page2.html')

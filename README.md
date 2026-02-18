@@ -41,11 +41,26 @@ Input name for final submittal file: 3238_07-31-13_R0
 
 ## Output structure
 
-| Page | Content | Generated when |
-|------|---------|----------------|
-| Page 1 | Project header, submittal details, official response box | Always |
-| Page 2 | EDP review section + up to 3 reviewers | EDP address is provided |
-| Page 3+ | Up to 4 additional reviewers per page | More reviewers than Page 2 can hold |
+The number of pages in the final PDF depends on whether an EDP is provided and how many reviewers are listed.
+
+**Page 1** is always generated. It contains the project header, submittal details, and the official response box with the project manager's name.
+
+**Page 2** is generated only when an EDP address is provided. It contains the EDP's review section followed by review action slots for the first 3 reviewers from `reviewer_list`.
+
+**Page 3+** are generated for any reviewers not consumed by Page 2, with 4 reviewer slots per page. These pages are added in sequence until all reviewers are placed.
+
+Regardless of how many reviewers are listed, there is always at least one blank reviewer slot at the end of the document — ensuring there is room for a reviewer not listed on the transmittal.
+
+### Examples
+
+| EDP | Reviewers | Pages generated |
+|-----|-----------|-----------------|
+| No | 0 | Page 1, Page 3 (1 blank slot) |
+| No | 2 | Page 1, Page 3 (2 named + 1 blank) |
+| No | 5 | Page 1, Page 3 (4 named), Page 3_2 (1 named + 1 blank) |
+| Yes | 0 | Page 1, Page 2 (EDP + 1 blank slot) |
+| Yes | 3 | Page 1, Page 2 (EDP + 3 named), Page 3 (1 blank slot) |
+| Yes | 5 | Page 1, Page 2 (EDP + 3 named), Page 3 (2 named + 1 blank) |
 
 ## xmtl_templates.yaml
 

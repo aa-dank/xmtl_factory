@@ -57,12 +57,3 @@ def create_final_pdf(final_pdf_name, HTML_FILES):
 
     print(f"\nFinal combined PDF created:")
     print(final_path.resolve())
-
-'''
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python html_to_pdf.py <output.pdf>")
-        sys.exit(1)
-
-    main(sys.argv[1])
-'''
