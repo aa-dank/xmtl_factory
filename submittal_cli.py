@@ -1,4 +1,3 @@
-import rich
 from rich.console import Console
 from rich.table import Table
 import click
@@ -7,36 +6,46 @@ from custom_fill import render_output
 from datetime import datetime, timedelta
 import yaml
 
+console = Console()
+
 
 class XmtlBuildField:
-    def __init__(self, name, value, prompt):
+    def __init__(self, name, value, prompt, required = False):
         self.name = name
         self.value = value
         self.prompt = prompt
+        self.required = required
 
     def fill_field(self):
         if not self.value:
-            self.value = click.prompt(self.prompt)
+            if self.required:
+                while not self.value:
+                    self.value = click.prompt(self.prompt)
+                    if not self.value:
+                        console.print(f"'{self.name}' is required. Please enter a value.", style="red")
+            else:
+                self.value = click.prompt(self.prompt, default="")
 
 class XmtlBuild:
-    def __init__(self, project_number, project_title, submittal_number, revision_number, specification_section, submittal_name,
+    def __init__(self, project_number="", project_title="", submittal_number="", revision_number="",
+                 specification_section="", submittal_name="",
                  project_manager_name="", edp_line1="", edp_line2="", edp_line3="", reviewer_names=""):
-        self.project_number       = XmtlBuildField("Project_Number",       project_number,       "Input Project Number")
-        self.project_title        = XmtlBuildField("Project_Title",        project_title,        "Input Project Title")
-        self.submittal_number     = XmtlBuildField("Submittal_Number",     submittal_number,     "Input Submittal Number")
-        self.revision_number      = XmtlBuildField("Revision_Number",      revision_number,      "Input Revision Number")
-        self.specification_section = XmtlBuildField("Specification_Section", specification_section, "Input Specification Section")
-        self.submittal_name       = XmtlBuildField("Submittal_Name",       submittal_name,       "Input Submittal Name")
-        self.project_manager_name = XmtlBuildField("Project_Manager",      project_manager_name, "Input Project Manager Name")
-        self.edp_line1            = XmtlBuildField("EDP_Address_Line_1",   edp_line1,            "Input EDP Address Line 1")
-        self.edp_line2            = XmtlBuildField("EDP_Address_Line_2",   edp_line2,            "Input EDP Address Line 2")
-        self.edp_line3            = XmtlBuildField("EDP_Address_Line_3",   edp_line3,            "Input EDP Address Line 3")
-        self.reviewer_names       = XmtlBuildField("Reviewer_Names",       reviewer_names,       "Input Reviewer Names")
+        self.project_number        = XmtlBuildField("Project_Number",        project_number,        "Input Project Number",        required=True)
+        self.project_title         = XmtlBuildField("Project_Title",         project_title,         "Input Project Title",         required=True)
+        self.submittal_number      = XmtlBuildField("Submittal_Number",      submittal_number,      "Input Submittal Number",      required=True)
+        self.revision_number       = XmtlBuildField("Revision_Number",       revision_number,       "Input Revision Number",       required=True)
+        self.specification_section = XmtlBuildField("Specification_Section", specification_section, "Input Specification Section", required=True)
+        self.submittal_name        = XmtlBuildField("Submittal_Name",        submittal_name,        "Input Submittal Name",        required=True)
+        self.project_manager_name  = XmtlBuildField("Project_Manager",       project_manager_name,  "Input Project Manager Name")
+        self.edp_line1             = XmtlBuildField("EDP_Address_Line_1",    edp_line1,             "Input EDP Name")
+        self.edp_line2             = XmtlBuildField("EDP_Address_Line_2",    edp_line2,             "Input EDP Address")
+        self.edp_line3             = XmtlBuildField("EDP_Address_Line_3",    edp_line3,             "Input EDP City, State, Zip")
+        self.reviewer_names        = XmtlBuildField("Reviewer_Names",        reviewer_names,        "Input Reviewer Names (semicolon-delimited)")
 
     @classmethod
     def empty(cls):
         """Create an XmtlBuild with all fields empty, ready for manual prompting."""
-        return cls("", "", "", "", "", "")
+        return cls()
 
     @classmethod
     def from_yaml(cls, yaml_path, key):
@@ -62,6 +71,13 @@ class XmtlBuild:
             edp_line3            = d.get("EDP_Address_Line_3", ""),
             reviewer_names       = d.get("reviewer_list", ""),
         )
+
+    def validate(self):
+        """Return a list of required field names that are still empty."""
+        return [
+            field.name for field in vars(self).values()
+            if isinstance(field, XmtlBuildField) and field.required and not field.value
+        ]
 
     @property
     def has_edp(self):
@@ -98,8 +114,9 @@ class XmtlBuild:
             "EDP_Address_Line_2":   self.edp_line2.value,
             "EDP_Address_Line_3":   self.edp_line3.value,
         }
-        for i, name in enumerate(self.reviewer_names.value.split(";"), start=1):
-            d[f"Reviewer_Name_{i}"] = name.strip()
+        names = [] if not self.reviewer_names.value else [name.strip() for name in self.reviewer_names.value.split(";")]
+        for i, name in enumerate(names, start=1):
+            d[f"Reviewer_Name_{i}"] = name
         return d
 
 
@@ -120,7 +137,6 @@ def review_dictionary(dictionary, title):
 
 
 if __name__ == "__main__":
-    console = Console()
     console.print("Welcome to the Submittal Generator!\n", style="bold green")
     console.print("Project & Submittal Details", style="green")
 
@@ -143,6 +159,11 @@ if __name__ == "__main__":
         build = XmtlBuild.empty()
         build.fill_all_fields()
         console.print("\nSummary of Submittal Inputs", style="bold green")
+
+    missing = build.validate()
+    if missing:
+        console.print(f"Cannot render — missing required fields: {missing}", style="bold red")
+        exit()
 
     dictionary = build.to_render_dict()
     if not review_dictionary(dictionary, "Submittal Details"):
