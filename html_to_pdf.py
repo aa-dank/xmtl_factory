@@ -1,7 +1,6 @@
 import sys, subprocess
 from pathlib import Path
 from pypdf import PdfWriter
-from custom_fill import HTML_FILES
 
 EDGE_PATH = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 
@@ -29,7 +28,7 @@ def convert_edge(input_html, output_pdf_name):
     print(f"Converted '{input_html}' → '{output_pdf_name}'")
     return output_dir
 
-def create_final_pdf(final_pdf_name):
+def create_final_pdf(final_pdf_name, HTML_FILES):
     missing = [f for f in HTML_FILES if not Path(f).exists()]
     if missing:
         sys.exit(f"Missing HTML files: {missing}")

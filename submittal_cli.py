@@ -22,18 +22,20 @@ def check_defaults(default_key):
         return None
     
     reviewer_names = default_keys.pop('reviewer_list')
-    reviewer_names = [name.strip() for name in reviewer_names.split(";")]
+    print(reviewer_names)
 
     #insert date review ends into dictionary & add reviewer names  as a list to dictionary
     items = list(default_keys.items())
     items.insert(3,('Date_Review_Ends', date.strftime("%m/%d/%Y")))
-    items.append(('Reviewer_Names', reviewer_names))
+    
+    for reviewer in  reviewer_names.split(";"):
+        items.insert(len(items), (f'Reviewer_Name_{reviewer_names.split(";").index(reviewer)+1}', reviewer.strip()))
     default_keys = dict(items)
     
     return default_keys
-    
 
 def review_dictionary(dictionary):
+    print(dictionary)
     #print out summary of inputs into a table
     table = Table(title="Submittal Details")
     table.add_column("Field", style="#333FFF", no_wrap=True)
@@ -54,6 +56,7 @@ def review_dictionary(dictionary):
     else:
         console.print("✖ Process Cancelled", style="bold red")
         return False
+
     return True
 
 def fill_dictionary(project_number, project_title, submittal_no, rev_no, specification, description, contractor_name, edp_line1, edp_line2, edp_line3, reviewer_names):
@@ -69,8 +72,10 @@ def fill_dictionary(project_number, project_title, submittal_no, rev_no, specifi
         'EDP_Address_Line_1': edp_line1,
         'EDP_Address_Line_2': edp_line2,
         'EDP_Address_Line_3': edp_line3,
-        'Reviewer_Names': reviewer_names.split(";")
+        #'Reviewer_Names': reviewer_names.split(";")
     }
+    for reviewer in  reviewer_names.split(";"):
+        dictionary[f'Reviewer_Name_{reviewer_names.split(";").index(reviewer)+1}'] = reviewer.strip()
 
     return dictionary
 
@@ -113,7 +118,8 @@ if __name__ == "__main__":
         if default_dict:
             console.print(f"\nSummary of Default Values for key {default_key}:", style="bold green")
             if review_dictionary(default_dict):
-                dictionary = default_dict       
+                dictionary = default_dict  
+            else: exit()     
     else:
         console.print("\nProceeding with manual input", style="green")
         dictionary = get_inputs_manual()
@@ -121,9 +127,9 @@ if __name__ == "__main__":
 
     console.print("\nSummary of Submittal Inputs", style="bold green")
     if review_dictionary(dictionary):
-        render_output(dictionary)
+        HTML_FILES = render_output(dictionary)
         final_pdf_name = click.prompt("Input name for final submittal file")
-        create_final_pdf(final_pdf_name)
+        create_final_pdf(final_pdf_name, HTML_FILES)
 
 
 
