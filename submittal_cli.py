@@ -35,25 +35,24 @@ class XmtlBuildField:
 
     @property
     def processed_value(self):
-        """Return processor(value) if a processor is defined, otherwise return raw value."""
-        if self._processor and self.value:
+        """Return processor(value) if a processor is defined, otherwise return raw value.
+
+        The processor is called even when value is empty, allowing it to supply
+        a default (e.g. returning '0' for a blank revision number).
+        """
+        if self._processor:
             return self._processor(self.value)
         return self.value
 
     def fill_field(self):
         """Prompt the user for a value if the field is currently empty.
 
-        For required fields, the prompt repeats until a non-empty value is given.
-        For optional fields, the user may press Enter to leave the field blank.
+        Always prompts once. The user may press Enter to leave optional fields
+        blank. Required field validation and retry logic is handled by
+        XmtlBuild.fill_all_fields().
         """
         if not self.value:
-            if self.required:
-                while not self.value:
-                    self.value = click.prompt(self.prompt)
-                    if not self.value:
-                        console.print(f"'{self.name}' is required. Please enter a value.", style="red")
-            else:
-                self.value = click.prompt(self.prompt, default="")
+            self.value = click.prompt(self.prompt, default="")
 
 class XmtlBuild:
     """Represents all data needed to generate a submittal transmittal PDF.
@@ -76,7 +75,13 @@ class XmtlBuild:
         self.project_number        = XmtlBuildField("Project_Number",        project_number,        "Input Project Number",        required=True)
         self.project_title         = XmtlBuildField("Project_Title",         project_title,         "Input Project Title",         required=True)
         self.submittal_number      = XmtlBuildField("Submittal_Number",      submittal_number,      "Input Submittal Number",      required=True)
-        self.revision_number       = XmtlBuildField("Revision_Number",       revision_number,       "Input Revision Number",       required=True)
+        self.revision_number       = XmtlBuildField(
+            "Revision_Number",
+            revision_number,
+            "Input Revision Number",
+            required=True,
+            processor=lambda v: v.strip() if v.strip() else "0"
+        )
         self.specification_section = XmtlBuildField("Specification_Section", specification_section, "Input Specification Section", required=True)
         self.submittal_name        = XmtlBuildField("Submittal_Name",        submittal_name,        "Input Submittal Name",        required=True)
         self.project_manager_name  = XmtlBuildField("Project_Manager",       project_manager_name,  "Input Project Manager Name")
@@ -134,10 +139,15 @@ class XmtlBuild:
         )
 
     def validate(self):
-        """Return a list of required field names that are still empty."""
+        """Return a list of required field names whose processed_value is still empty.
+
+        Uses processed_value rather than raw value so that a processor which
+        generates a default (e.g. revision_number defaulting to '0') is
+        considered satisfied without re-prompting the user.
+        """
         return [
             field.name for field in vars(self).values()
-            if isinstance(field, XmtlBuildField) and field.required and not field.value
+            if isinstance(field, XmtlBuildField) and field.required and not field.processed_value
         ]
 
     @property
@@ -146,9 +156,16 @@ class XmtlBuild:
         return bool(self.edp_line1.value)
 
     def fill_all_fields(self):
-        """Prompt for any fields that are still empty."""
+        """Prompt for any fields that are still empty, then retry any required fields
+        that remain unresolved after the first pass.
+
+        Required field validation is owned here rather than inside fill_field,
+        so that processor-generated defaults (e.g. revision_number defaulting
+        to '0') can satisfy a required field without user input.
+        """
         for field in [self.project_number, self.project_title, self.submittal_number,
-                      self.revision_number, self.specification_section, self.submittal_name, self.project_manager_name]:
+                      self.revision_number, self.specification_section, self.submittal_name,
+                      self.project_manager_name]:
             field.fill_field()
 
         if click.confirm("Does this submittal have an Executive Design Professional (EDP)?", default=False):
@@ -162,12 +179,24 @@ class XmtlBuild:
         console.print("Example: 'David Jessen, UCSC PP;Jeff Clothier, UCSC PP'", style="green")
         self.reviewer_names.fill_field()
 
+        # Retry loop — re-prompt only fields still failing validation after the first pass
+        while missing := self.validate():
+            console.print(f"\nThe following required fields are still missing: {missing}", style="red")
+            for field in vars(self).values():
+                if isinstance(field, XmtlBuildField) and field.name in missing:
+                    field.value = ""
+                    field.fill_field()
+
     def to_render_dict(self):
-        """Produce the flat dictionary that render_output() expects."""
+        """Produce the flat dictionary that render_output() expects.
+
+        Uses processed_value for all fields so that any processor-generated
+        defaults or transformations are reflected in the output.
+        """
         d = {
             "Project_Title":        f"{self.project_number.value}, {self.project_title.value}",
             "Submittal_Number":     self.submittal_number.value,
-            "Revision_Number":      self.revision_number.value,
+            "Revision_Number":      self.revision_number.processed_value,
             "Date_Review_Ends":     (datetime.now() + timedelta(weeks=2)).strftime("%m/%d/%Y"),
             "Specification_Section": self.specification_section.value,
             "Submittal_Name":       self.submittal_name.value,
@@ -229,11 +258,6 @@ if __name__ == "__main__":
         build = XmtlBuild.empty()
         build.fill_all_fields()
         console.print("\nSummary of Submittal Inputs", style="bold green")
-
-    missing = build.validate()
-    if missing:
-        console.print(f"Cannot render — missing required fields: {missing}", style="bold red")
-        exit()
 
     dictionary = build.to_render_dict()
     if not review_dictionary(dictionary, "Submittal Details"):
