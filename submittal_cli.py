@@ -4,9 +4,25 @@ import click
 from html_to_pdf import create_final_pdf
 from custom_fill import render_output
 from datetime import datetime, timedelta
+from dateutil import parser as dateutil_parser
 import yaml
 
 console = Console()
+
+
+def _parse_review_date(value: str) -> str:
+    """Parse a user-supplied date string and return it formatted as MM/DD/YYYY.
+
+    Accepts any format recognised by dateutil.parser (e.g. '03/15/2025',
+    'March 15 2025', '2025-03-15'). Returns a date two weeks from today
+    if value is blank or cannot be parsed.
+    """
+    if value.strip():
+        try:
+            return dateutil_parser.parse(value.strip()).strftime("%m/%d/%Y")
+        except (ValueError, OverflowError):
+            console.print(f"Could not parse date '{value}' — defaulting to two weeks from today.", style="yellow")
+    return (datetime.now() + timedelta(weeks=2)).strftime("%m/%d/%Y")
 
 
 class XmtlBuildField:
@@ -64,7 +80,7 @@ class XmtlBuild:
     """
 
     def __init__(self, project_number="", project_title="", submittal_number="", revision_number="",
-                 specification_section="", submittal_name="",
+                 specification_section="", submittal_name="", date_review_ends="",
                  project_manager_name="", edp_line1="", edp_line2="", edp_line3="", reviewer_names=""):
         """Initialise all fields. All arguments are optional and default to empty string.
 
@@ -84,6 +100,12 @@ class XmtlBuild:
         )
         self.specification_section = XmtlBuildField("Specification_Section", specification_section, "Input Specification Section", required=True)
         self.submittal_name        = XmtlBuildField("Submittal_Name",        submittal_name,        "Input Submittal Name",        required=True)
+        self.date_review_ends      = XmtlBuildField(
+            "Date_Review_Ends",
+            date_review_ends,
+            "Input review end date (MM/DD/YYYY, leave blank to default to two weeks from today)",
+            processor=_parse_review_date
+        )
         self.project_manager_name  = XmtlBuildField("Project_Manager",       project_manager_name,  "Input Project Manager Name")
         self.edp_line1             = XmtlBuildField("EDP_Address_Line_1",    edp_line1,             "Input EDP Name")
         self.edp_line2             = XmtlBuildField("EDP_Address_Line_2",    edp_line2,             "Input EDP Address")
@@ -131,6 +153,7 @@ class XmtlBuild:
             revision_number      = d.get("Revision_Number", ""),
             specification_section = d.get("Specification_Section", ""),
             submittal_name       = d.get("Submittal_Name", ""),
+            date_review_ends     = d.get("Date_Review_Ends", ""),
             project_manager_name = d.get("Project_Manager", ""),
             edp_line1            = d.get("EDP_Address_Line_1", ""),
             edp_line2            = d.get("EDP_Address_Line_2", ""),
@@ -165,7 +188,7 @@ class XmtlBuild:
         """
         for field in [self.project_number, self.project_title, self.submittal_number,
                       self.revision_number, self.specification_section, self.submittal_name,
-                      self.project_manager_name]:
+                      self.date_review_ends, self.project_manager_name]:
             field.fill_field()
 
         if click.confirm("Does this submittal have an Executive Design Professional (EDP)?", default=False):
@@ -197,7 +220,7 @@ class XmtlBuild:
             "Project_Title":        f"{self.project_number.value}, {self.project_title.value}",
             "Submittal_Number":     self.submittal_number.value,
             "Revision_Number":      self.revision_number.processed_value,
-            "Date_Review_Ends":     (datetime.now() + timedelta(weeks=2)).strftime("%m/%d/%Y"),
+            "Date_Review_Ends":     self.date_review_ends.processed_value,
             "Specification_Section": self.specification_section.value,
             "Submittal_Name":       self.submittal_name.value,
             "Project_Manager":      self.project_manager_name.value,
