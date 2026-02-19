@@ -15,4 +15,8 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pyinstaller>=6.19.0",
+    "pytest>=8.0",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
