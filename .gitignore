@@ -9,6 +9,9 @@ uv.lock
 examples/
 *.pdf
 
+# ===== Visual test output =====
+test_output/
+
 # ===== Images =====
 images/
 *.png
