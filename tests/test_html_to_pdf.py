@@ -1,6 +1,6 @@
 """Tests for html_to_pdf functions.
 
-Edge and PdfWriter are mocked so no browser or real PDFs are needed.
+pisa.CreatePDF and PdfWriter are mocked so no real PDF conversion is needed.
 """
 from pathlib import Path
 from unittest.mock import MagicMock, call, patch
@@ -10,42 +10,42 @@ import html_to_pdf
 
 
 # ---------------------------------------------------------------------------
-# convert_edge
+# convert_html
 # ---------------------------------------------------------------------------
 
-class TestConvertEdge:
-    def test_calls_subprocess_with_edge_path(self, tmp_path):
+class TestConvertHtml:
+    def _make_mock_status(self, err=0):
+        status = MagicMock()
+        status.err = err
+        return status
+
+    def test_calls_pisa_create_pdf(self, tmp_path):
         html_file = tmp_path / "page.html"
         html_file.write_text("<html></html>")
         pdf_out = tmp_path / "page.pdf"
 
-        with patch("html_to_pdf.subprocess.run") as mock_run:
-            html_to_pdf.convert_edge(str(html_file), str(pdf_out))
+        with patch("html_to_pdf.pisa.CreatePDF", return_value=self._make_mock_status()) as mock_pisa:
+            html_to_pdf.convert_html(str(html_file), str(pdf_out))
 
-        mock_run.assert_called_once()
-        cmd = mock_run.call_args[0][0]
-        assert cmd[0] == html_to_pdf.EDGE_PATH
-        assert "--headless" in cmd
+        mock_pisa.assert_called_once()
 
     def test_returns_resolved_output_path(self, tmp_path):
         html_file = tmp_path / "page.html"
         html_file.write_text("<html></html>")
         pdf_out = tmp_path / "page.pdf"
 
-        with patch("html_to_pdf.subprocess.run"):
-            result = html_to_pdf.convert_edge(str(html_file), str(pdf_out))
+        with patch("html_to_pdf.pisa.CreatePDF", return_value=self._make_mock_status()):
+            result = html_to_pdf.convert_html(str(html_file), str(pdf_out))
 
         assert result == pdf_out.resolve()
 
-    def test_check_true_propagates_subprocess_error(self, tmp_path):
-        import subprocess
-
+    def test_raises_runtime_error_on_pisa_failure(self, tmp_path):
         html_file = tmp_path / "page.html"
         html_file.write_text("<html></html>")
 
-        with patch("html_to_pdf.subprocess.run", side_effect=subprocess.CalledProcessError(1, "edge")):
-            with pytest.raises(subprocess.CalledProcessError):
-                html_to_pdf.convert_edge(str(html_file), str(tmp_path / "out.pdf"))
+        with patch("html_to_pdf.pisa.CreatePDF", return_value=self._make_mock_status(err=1)):
+            with pytest.raises(RuntimeError, match="xhtml2pdf conversion failed"):
+                html_to_pdf.convert_html(str(html_file), str(tmp_path / "out.pdf"))
 
 
 # ---------------------------------------------------------------------------
@@ -65,7 +65,7 @@ class TestCreateFinalPdf:
         with pytest.raises(SystemExit):
             html_to_pdf.create_final_pdf("out.pdf", [str(tmp_path / "missing.html")])
 
-    def test_calls_convert_edge_for_each_html_file(self, tmp_path):
+    def test_calls_convert_html_for_each_html_file(self, tmp_path):
         html_files = self._make_html_files(tmp_path, count=2)
 
         fake_pdfs = [tmp_path / f"page{i}.pdf" for i in range(1, 3)]
@@ -79,7 +79,7 @@ class TestCreateFinalPdf:
 
         convert_calls = iter(fake_pdfs)
 
-        with patch("html_to_pdf.convert_edge", side_effect=lambda h, p: next(convert_calls)) as mock_convert, \
+        with patch("html_to_pdf.convert_html", side_effect=lambda h, p: next(convert_calls)) as mock_convert, \
              patch("html_to_pdf.PdfWriter", return_value=mock_writer), \
              patch("builtins.open", MagicMock(return_value=MagicMock(__enter__=MagicMock(return_value=MagicMock()), __exit__=MagicMock(return_value=False)))):
             html_to_pdf.create_final_pdf(str(tmp_path / "final.pdf"), html_files)
@@ -95,7 +95,7 @@ class TestCreateFinalPdf:
         mock_writer = MagicMock()
         convert_iter = iter(fake_pdfs)
 
-        with patch("html_to_pdf.convert_edge", side_effect=lambda h, p: next(convert_iter)), \
+        with patch("html_to_pdf.convert_html", side_effect=lambda h, p: next(convert_iter)), \
              patch("html_to_pdf.PdfWriter", return_value=mock_writer), \
              patch("builtins.open", MagicMock(return_value=MagicMock(__enter__=MagicMock(return_value=MagicMock()), __exit__=MagicMock(return_value=False)))):
             html_to_pdf.create_final_pdf(str(tmp_path / "final.pdf"), html_files)
