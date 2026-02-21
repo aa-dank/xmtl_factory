@@ -1,21 +1,52 @@
 import sys
+import platform
 from pathlib import Path
 from pypdf import PdfWriter
-from xhtml2pdf import pisa
+import pdfkit
+
+
+def resource_path(relative: str) -> Path:
+    """Resolve a path relative to the app's resource directory.
+
+    When running as a PyInstaller one-file executable, resources are extracted
+    to a temporary directory stored in sys._MEIPASS. When running from source,
+    resources are found relative to this file's directory.
+    """
+    base = Path(getattr(sys, '_MEIPASS', Path(__file__).parent))
+    return base / relative
+
+
+def _wkhtmltopdf_config() -> pdfkit.configuration:
+    """Return a pdfkit configuration pointing at the bundled wkhtmltopdf binary.
+
+    Looks for a binary bundled alongside the app first (PyInstaller case), then
+    falls back to whatever is on PATH (development / system install).
+    """
+    binary_name = 'wkhtmltopdf.exe' if platform.system() == 'Windows' else 'wkhtmltopdf'
+    bundled = resource_path(binary_name)
+    if bundled.exists():
+        return pdfkit.configuration(wkhtmltopdf=str(bundled))
+    # Fall back to system PATH — pdfkit will raise a clear error if missing
+    return pdfkit.configuration()
+
+
+_PDFKIT_OPTIONS = {
+    'enable-local-file-access': None,   # allow file:// URIs in the HTML
+    'quiet': '',                         # suppress wkhtmltopdf's verbose output
+    'print-media-type': None,            # honour @media print CSS rules
+}
 
 
 def convert_html(input_html, output_pdf_name):
     input_path = Path(input_html).resolve()
     output_path = Path(output_pdf_name).resolve()
 
-    with open(input_path, "r", encoding="utf-8") as source_file:
-        html_content = source_file.read()
-
-    with open(output_path, "wb") as dest_file:
-        status = pisa.CreatePDF(html_content, dest=dest_file)
-
-    if status.err:
-        raise RuntimeError(f"xhtml2pdf conversion failed for '{input_html}'")
+    pdfkit.from_file(
+        str(input_path),
+        str(output_path),
+        configuration=_wkhtmltopdf_config(),
+        options=_PDFKIT_OPTIONS,
+    )
 
     print(f"Converted '{input_html}' → '{output_pdf_name}'")
     return output_path

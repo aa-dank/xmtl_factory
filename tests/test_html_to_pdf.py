@@ -1,6 +1,6 @@
 """Tests for html_to_pdf functions.
 
-pisa.CreatePDF and PdfWriter are mocked so no real PDF conversion is needed.
+pdfkit.from_file and PdfWriter are mocked so no real PDF conversion is needed.
 """
 from pathlib import Path
 from unittest.mock import MagicMock, call, patch
@@ -14,38 +14,30 @@ import html_to_pdf
 # ---------------------------------------------------------------------------
 
 class TestConvertHtml:
-    def _make_mock_status(self, err=0):
-        status = MagicMock()
-        status.err = err
-        return status
-
-    def test_calls_pisa_create_pdf(self, tmp_path):
+    def test_calls_pdfkit_from_file(self, tmp_path):
         html_file = tmp_path / "page.html"
         html_file.write_text("<html></html>")
         pdf_out = tmp_path / "page.pdf"
 
-        with patch("html_to_pdf.pisa.CreatePDF", return_value=self._make_mock_status()) as mock_pisa:
+        with patch("html_to_pdf.pdfkit.from_file") as mock_from_file, \
+             patch("html_to_pdf._wkhtmltopdf_config", return_value=MagicMock()):
             html_to_pdf.convert_html(str(html_file), str(pdf_out))
 
-        mock_pisa.assert_called_once()
+        mock_from_file.assert_called_once()
+        args, _ = mock_from_file.call_args
+        assert args[0] == str(html_file.resolve())
+        assert args[1] == str(pdf_out.resolve())
 
     def test_returns_resolved_output_path(self, tmp_path):
         html_file = tmp_path / "page.html"
         html_file.write_text("<html></html>")
         pdf_out = tmp_path / "page.pdf"
 
-        with patch("html_to_pdf.pisa.CreatePDF", return_value=self._make_mock_status()):
+        with patch("html_to_pdf.pdfkit.from_file"), \
+             patch("html_to_pdf._wkhtmltopdf_config", return_value=MagicMock()):
             result = html_to_pdf.convert_html(str(html_file), str(pdf_out))
 
         assert result == pdf_out.resolve()
-
-    def test_raises_runtime_error_on_pisa_failure(self, tmp_path):
-        html_file = tmp_path / "page.html"
-        html_file.write_text("<html></html>")
-
-        with patch("html_to_pdf.pisa.CreatePDF", return_value=self._make_mock_status(err=1)):
-            with pytest.raises(RuntimeError, match="xhtml2pdf conversion failed"):
-                html_to_pdf.convert_html(str(html_file), str(tmp_path / "out.pdf"))
 
 
 # ---------------------------------------------------------------------------

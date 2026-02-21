@@ -1,3 +1,5 @@
+import sys
+from pathlib import Path
 from rich.console import Console
 from rich.table import Table
 import click
@@ -6,6 +8,17 @@ from custom_fill import render_output
 from datetime import datetime, timedelta
 from dateutil import parser as dateutil_parser
 import yaml
+
+
+def resource_path(relative: str) -> Path:
+    """Resolve a path relative to the app's resource directory.
+
+    When running as a PyInstaller one-file executable, resources are extracted
+    to a temporary directory stored in sys._MEIPASS. When running from source,
+    resources are found relative to this file's directory.
+    """
+    base = Path(getattr(sys, '_MEIPASS', Path(__file__).parent))
+    return base / relative
 
 console = Console()
 
@@ -279,7 +292,7 @@ if __name__ == "__main__":
 
         if default_key:
             try:
-                build = XmtlBuild.from_yaml("xmtl_templates.yaml", default_key)
+                build = XmtlBuild.from_yaml(resource_path("xmtl_templates.yaml"), default_key)
                 console.print(f"\nXmtl template '{default_key}' loaded. You will be prompted for any missing values.\n", style="bold green")
                 build.fill_all_fields()
                 console.print("\nSummary of Submittal Inputs", style="bold green")
