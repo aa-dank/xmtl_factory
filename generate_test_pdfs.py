@@ -11,6 +11,13 @@ Review each PDF manually to verify layout, spacing, page breaks, and that
 reviewer names and EDP blocks render as expected.
 """
 
+"""
+TESTING NOTES:
+    - The number of reviewers or if there is an edp is robust -- output is what is expected no matter # of reviewers being long...
+    - Depending on length of reviewer names/EDP info, the final conclusion is that the template can accomodate a maximum of 5 extra lines
+    - Note: asumme 90 characters per line
+"""
+
 import os
 from pathlib import Path
 
@@ -25,6 +32,57 @@ OUT_DIR.mkdir(exist_ok=True)
 # Test cases: (output_filename_stem, XmtlBuild kwargs)
 # ---------------------------------------------------------------------------
 CASES = [
+    (
+        "long_names_notpassable",
+        dict(
+            edp_line1="Gordon Prill Consulting Engineers, Inc.",
+            edp_line2="310 East Caribbean Drive, Suite 200",
+            edp_line3="Sunnyvale, CA 94089-1100",
+            reviewer_names=(
+                "A Very Long Reviewer Name, Department of Structural EngineeringUCSC Physical Planning and DevelopmentUCSC Physical Planning and DevelopmentUCSC Physical Planning and Development;"
+                "Another Quite Long Reviewer Name, Department of Mechanical and ElectricalUCSC Physical Planning and DevelopmentUCSC Physical Planning and DevelopmentUCSC Physical Planning and Development;"
+                "Yet Another Name With A Long Title, UCSC Physical Planning and DevelopmenttUCSC Physical Planning and DevelopmentUCSC Physical Planning and DevelopmentUCSC Physical Planning and DevelopmentUCSC Physical Planning and DevelopmentUCSC Physical Planning and Development UCSC Physical Planning and Development "
+                "A Moderately Long Reviewer Name, Department of CivilUCSC Physical Planning and DevelopmentUCSC Physical Planning and DevelopmentUCSC Physical Planning and Development;"   
+                
+            ),
+            submittal_name="Extra Long Submittal Description That Tests Name Wrapping on Page 1",
+        ),
+    ),
+    (
+        "long_names_passable",
+        dict(
+            edp_line1="Gordon Prill Consulting Engineers, Inc.",
+            edp_line2="310 East Caribbean Drive, Suite 200",
+            edp_line3="Sunnyvale, CA 94089-1100",
+            reviewer_names=(
+                "A Very Long Reviewer Name, Department of Structural EngineeringUCSC Physical Planning and DevelopmentUCSC Physical Planning and DevelopmentUCSC Physical Planning and Development;"
+                "Another Quite Long Reviewer Name, Department of Mechanical and ElectricalUCSC Physical Planning and DevelopmentUCSC Physical Planning and DevelopmentUCSC Physical Planning and Development;"
+                "Yet Another Name With A Long Title, UCSC Physical Planning and DevelopmentUCSC Physical Planning and DevelopmentUCSC Physical Planning and DevelopmentUCSC Physical Planning and Development UCSC Physical Planning and Development;"
+                "A Moderately Long Reviewer Name, Department of CivilUCSC Physical Planning and DevelopmentUCSC Physical Planning and DevelopmentUCSC Physical Planning and Development"                
+            ),
+            submittal_name="Extra Long Submittal Description That Tests Name Wrapping on Page 1",
+        ),
+    ),
+    ]
+OTHER_CASES = [
+    (
+        "long_title_and_section",
+        dict(
+            project_number = "10099-999",
+            project_title = "A Very Very very very very Long Project Title That Tests Text Wrapping and Layout on the Submittal Cover Page and Subsequent Pages ",
+        ),
+    ),
+    (
+        "high_revision_number",
+        dict(
+            revision_number="500",
+            reviewer_names="Alice Smith, Engineering",
+        ),
+    ),
+    (
+        "from_yaml_3238",
+        None,  # loaded from yaml — see special handling below
+    ),
     (
         "no_edp_no_reviewers",
         dict(
@@ -91,31 +149,6 @@ CASES = [
             revision_number="",
             reviewer_names="Alice Smith, Engineering",
         ),
-    ),
-    (
-        "high_revision_number",
-        dict(
-            revision_number="5",
-            reviewer_names="Alice Smith, Engineering",
-        ),
-    ),
-    (
-        "long_names",
-        dict(
-            edp_line1="Gordon Prill Consulting Engineers, Inc.",
-            edp_line2="310 East Caribbean Drive, Suite 200",
-            edp_line3="Sunnyvale, CA 94089-1100",
-            reviewer_names=(
-                "A Very Long Reviewer Name, Department of Structural Engineering;"
-                "Another Quite Long Reviewer Name, Department of Mechanical and Electrical;"
-                "Yet Another Name With A Long Title, UCSC Physical Planning and Development"
-            ),
-            submittal_name="Extra Long Submittal Description That Tests Name Wrapping on Page 1",
-        ),
-    ),
-    (
-        "from_yaml_3238",
-        None,  # loaded from yaml — see special handling below
     ),
 ]
 
