@@ -6,8 +6,24 @@ from custom_fill import render_output
 from datetime import datetime, timedelta
 from dateutil import parser as dateutil_parser
 import yaml
+from pathlib import Path
+import sys
 
 console = Console()
+
+
+def _default_templates_path() -> Path:
+    cwd_path = Path("xmtl_templates.yaml")
+    if cwd_path.exists():
+        return cwd_path
+
+    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+        bundled_path = Path(sys._MEIPASS) / "xmtl_templates.yaml"
+        if bundled_path.exists():
+            return bundled_path
+
+    local_path = Path(__file__).resolve().parent / "xmtl_templates.yaml"
+    return local_path
 
 
 def _parse_review_date(value: str) -> str:
@@ -279,7 +295,7 @@ if __name__ == "__main__":
 
         if default_key:
             try:
-                build = XmtlBuild.from_yaml("xmtl_templates.yaml", default_key)
+                build = XmtlBuild.from_yaml(str(_default_templates_path()), default_key)
                 console.print(f"\nXmtl template '{default_key}' loaded. You will be prompted for any missing values.\n", style="bold green")
                 build.fill_all_fields()
                 console.print("\nSummary of Submittal Inputs", style="bold green")

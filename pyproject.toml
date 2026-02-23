@@ -10,7 +10,6 @@ dependencies = [
     "python-dateutil>=2.9",
     "pyyaml>=6.0.3",
     "rich>=14.3.2",
-    "xhtml2pdf>=0.2.16",
 ]
 
 [dependency-groups]

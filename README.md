@@ -5,7 +5,9 @@ A CLI tool for generating construction submittal transmittal PDFs for UCSC Physi
 ## Requirements
 
 - Python 3.13+
-- Microsoft Edge installed at `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`
+- Microsoft Edge installed (detected from `EDGE_PATH`, `PATH`, registry, or common install locations)
+
+If Edge is installed in a non-standard location, set `EDGE_PATH` to the full path of `msedge.exe`.
 
 ## Installation
 
@@ -110,3 +112,15 @@ styles.css              # Shared stylesheet for all pages
 | `pyyaml` | Template file parsing |
 | `rich` | Formatted terminal output |
 | `pyinstaller` *(dev)* | Standalone executable packaging |
+
+## Build executable (PyInstaller)
+
+Use the included spec file to package templates, images, CSS, and default YAML:
+
+```bash
+pyinstaller --clean xmtl_factory.spec
+```
+
+The executable is generated at `dist/xmtl_factory.exe`.
+
+If Edge is installed in a non-standard location on the target machine, set `EDGE_PATH` before running the executable.

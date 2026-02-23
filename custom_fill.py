@@ -1,7 +1,30 @@
 from jinja2 import Environment, FileSystemLoader
 from pathlib import Path
+import shutil
+import sys
 
-env = Environment(loader=FileSystemLoader('templates'))
+
+def _resource_root() -> Path:
+    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+        return Path(sys._MEIPASS)
+    return Path(__file__).resolve().parent
+
+
+def _ensure_runtime_assets() -> None:
+    resource_root = _resource_root()
+
+    source_styles = resource_root / "styles.css"
+    target_styles = Path("styles.css")
+    if source_styles.exists() and not target_styles.exists():
+        shutil.copy2(source_styles, target_styles)
+
+    source_images = resource_root / "images"
+    target_images = Path("images")
+    if source_images.exists() and not target_images.exists():
+        shutil.copytree(source_images, target_images)
+
+
+env = Environment(loader=FileSystemLoader(str(_resource_root() / "templates")))
 
 # Retreive templates
 template_1 = env.get_template('Page1.HTML')
@@ -10,6 +33,8 @@ template_3 = env.get_template('Page3.HTML')
 
 # Render outputs
 def render_output(dictionary):
+    _ensure_runtime_assets()
+
     # Clean up old output files
     for old_file in Path('.').glob('output_*.html'):
         old_file.unlink()
