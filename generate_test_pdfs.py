@@ -33,6 +33,18 @@ OUT_DIR.mkdir(exist_ok=True)
 # ---------------------------------------------------------------------------
 CASES = [
     (
+        "special_characters",
+        dict(
+            reviewer_names=(
+                "Alice Smith, Engineering;Bob Jones, Architecture;Carol Lee, Civil;Dave Kim, Mechanical;Eve Brown, Electrical"
+            ),
+            submittal_name=" & < > \" ' / \\ !@#$%^&*()><?{}+_,./';[]=-' ",
+        ),
+    )
+    
+    ]
+OTHER_CASES = [
+    (
         "long_names_notpassable",
         dict(
             edp_line1="Gordon Prill Consulting Engineers, Inc.",
@@ -63,8 +75,6 @@ CASES = [
             submittal_name="Extra Long Submittal Description That Tests Name Wrapping on Page 1",
         ),
     ),
-    ]
-OTHER_CASES = [
     (
         "long_title_and_section",
         dict(

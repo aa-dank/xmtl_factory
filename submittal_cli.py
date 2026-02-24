@@ -49,7 +49,7 @@ class XmtlBuildField:
     to transform the raw value before it is used in rendering.
     """
 
-    def __init__(self, name, value, prompt, required=False, processor=None):
+    def __init__(self, name, value, prompt, required=False, processor=None, max_length=None):
         """Initialise the field.
 
         Args:
@@ -64,6 +64,7 @@ class XmtlBuildField:
         self.prompt = prompt
         self.required = required
         self._processor = processor
+        self.max_length = max_length
 
     @property
     def processed_value(self):
@@ -131,7 +132,8 @@ class XmtlBuild:
             "Reviewer_Names",
             reviewer_names,
             "Input Reviewer Names (semicolon-delimited) (e.g. 'David Jessen, UCSC PP;Jeff Clothier, UCSC PP')",
-            processor=lambda v: [name.strip() for name in v.split(";") if name.strip()]
+            processor=lambda v: [name.strip() for name in v.split(";") if name.strip()],
+            max_length=540
         )
 
     @classmethod
@@ -195,7 +197,7 @@ class XmtlBuild:
         """True if an Executive Design Professional name has been provided."""
         return bool(self.edp_line1.value)
 
-    def fill_all_fields(self):
+    def fill_all_fields(self, using_defaults=False):
         """Prompt for any fields that are still empty, then retry any required fields
         that remain unresolved after the first pass.
 
@@ -208,18 +210,36 @@ class XmtlBuild:
                       self.date_review_ends, self.project_manager_name]:
             field.fill_field()
 
-        if click.confirm("Does this submittal have an Executive Design Professional (EDP)?", default=False):
-            console.print("\nExample for how to input EDP information: ", style="yellow")
-            console.print("\tEHDD Architecture\n\t1 Pier Ste 2\n\tSan Francisco, CA 94111-2028", style="yellow")
-            self.edp_line1.fill_field()
-            self.edp_line2.fill_field()
-            self.edp_line3.fill_field()
-        else:
-            console.print("No EDP information will be included in the submittal.", style="green")
+        if not using_defaults:
+            if click.confirm("Does this submittal have an Executive Design Professional (EDP)?", default=False):
+                console.print("\nExample for how to input EDP information: ", style="yellow")
+                console.print("\tEHDD Architecture\n\t1 Pier Ste 2\n\tSan Francisco, CA 94111-2028", style="yellow")
+                self.edp_line1.fill_field()
+                self.edp_line2.fill_field()
+                self.edp_line3.fill_field()
+            else:
+                console.print("No EDP information will be included in the submittal.", style="green")
 
-        console.print("\nInput reviewer names as a semicolon-delimited list", style="bold green")
-        console.print("Example: 'David Jessen, UCSC PP;Jeff Clothier, UCSC PP'", style="green")
-        self.reviewer_names.fill_field()
+            console.print("\nInput reviewer names as a semicolon-delimited list", style="bold green")
+            console.print("Example: 'David Jessen, UCSC PP;Jeff Clothier, UCSC PP'", style="green")
+            console.print("\nNOTE: Reviewer names must not exceed 2 lines so in total reviewer names must not exceed 540 characters", style="red")
+        #self.reviewer_names.fill_field()
+        
+            # enforce max length of reviewer names 
+            while True:
+                self.reviewer_names.fill_field()
+                value = self.reviewer_names.value
+
+                if len(value) > self.reviewer_names.max_length:
+                    console.print(
+                        f"Reviewer names are {len(value)} characters. "
+                        f"Maximum allowed is {self.reviewer_names.max_length} (about 6 lines in PDF).",
+                        style="bold red"
+                        )
+                    self.reviewer_names.value = ""  # reset so it reprompts
+                    continue
+                break
+
 
         # Retry loop — re-prompt only fields still failing validation after the first pass
         while missing := self.validate():
@@ -297,7 +317,7 @@ if __name__ == "__main__":
             try:
                 build = XmtlBuild.from_yaml(str(_default_templates_path()), default_key)
                 console.print(f"\nXmtl template '{default_key}' loaded. You will be prompted for any missing values.\n", style="bold green")
-                build.fill_all_fields()
+                build.fill_all_fields(True)
                 console.print("\nSummary of Submittal Inputs", style="bold green")
             except KeyError as e:
                 console.print(str(e), style="red")
@@ -305,7 +325,7 @@ if __name__ == "__main__":
         else:
             console.print("\nProceeding with manual input...", style="green")
             build = XmtlBuild.empty()
-            build.fill_all_fields()
+            build.fill_all_fields(False)
             console.print("\nSummary of Submittal Inputs", style="bold yellow")
 
         dictionary = build.to_render_dict()
