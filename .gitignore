@@ -25,3 +25,8 @@ Thumbs.db
 
 DEMO.mp4
 *.mp4
+
+# ===== Executable =====
+*.exe
+build/
+
