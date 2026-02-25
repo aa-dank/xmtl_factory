@@ -1,7 +1,9 @@
 #Add new xmtl templates below with a unique key (e.g. project number)
 #All fields are optional except Project_Title, Submittal_Number, Revision_Number, Specification_Section, and Submittal_Name
 
-"TEMPLATE":
+# KEEP THIS TEMPLATE AT TOP AS A REFERENCE FOR ADDING NEW TEMPLATES. 
+#----DO NOT DELETE----
+"KEY":
   Project_Title: ""
   Submittal_Number: ""
   Revision_Number: ""
@@ -36,16 +38,4 @@
   EDP_Address_Line_2: "1 Pier Ste 2"
   EDP_Address_Line_3: "San Francisco, CA 94111-2028"
   reviewer_list: "David Jessen, UCSC PP"
-
-"testing_no_edp":
-  Project_Title: "3238, Westside Research Park - C0171 Bsl-2 Teaching & Remote Work Lab"
-  Submittal_Number: "4-073113-03"
-  Revision_Number: "0"
-  Specification_Section: "07 31 13 Asphalt Shingles"
-  Submittal_Name: "G3 Provost Shingle Sample"
-  Project_Manager: "Nathan Jensen"
-  EDP_Address_Line_1: ""
-  EDP_Address_Line_2: ""
-  EDP_Address_Line_3: ""
-  reviewer_list: "Matt DeMonner, UCSC PPC"
 
