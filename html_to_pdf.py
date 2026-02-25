@@ -133,6 +133,8 @@ def create_final_pdf(final_pdf_name, HTML_FILES):
     # Delete temp PDFs
     for pdf in pdf_paths:
         pdf.unlink()
+    for html in HTML_FILES:
+        Path(html).unlink()
 
     print(f"\nFinal combined PDF created:", end=" ")
     print(final_path.resolve())
