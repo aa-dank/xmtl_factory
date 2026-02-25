@@ -292,7 +292,7 @@ def review_dictionary(dictionary, title):
     if click.confirm("Does everything look correct?", default=True):
         console.print("[green]✔ Confirmed[/green]")
     else:
-        console.print("✖ Process Cancelled", style="bold red")
+        console.print("✖ Process Cancelled\n", style="bold red")
         return False
     return True
 
@@ -330,7 +330,8 @@ if __name__ == "__main__":
 
         dictionary = build.to_render_dict()
         if not review_dictionary(dictionary, "Submittal Details"):
-            exit()
+            console.print("\nStarting new submittal generation...", style="green")
+            continue
 
         HTML_FILES = render_output(dictionary)
         final_pdf_name = click.prompt("Input name for final submittal file")
