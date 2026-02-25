@@ -134,5 +134,5 @@ def create_final_pdf(final_pdf_name, HTML_FILES):
     for pdf in pdf_paths:
         pdf.unlink()
 
-    print(f"\nFinal combined PDF created:")
+    print(f"\nFinal combined PDF created:", end=" ")
     print(final_path.resolve())

@@ -159,7 +159,7 @@ class XmtlBuild:
         with open(yaml_path, "r") as f:
             defaults = yaml.safe_load(f)
         if key not in defaults:
-            raise KeyError(f"Key '{key}' not found in {yaml_path}")
+            raise KeyError(f"Key '{key}' not found in {yaml_path}\n")
         d = defaults[key]
         # yaml stores combined "number, title" — split them back out
         title_parts = d.get("Project_Title", "").split(", ", 1)
@@ -321,7 +321,7 @@ if __name__ == "__main__":
                 console.print("\nSummary of Submittal Inputs", style="bold green")
             except KeyError as e:
                 console.print(str(e), style="red")
-                exit()
+                continue
         else:
             console.print("\nProceeding with manual input...", style="green")
             build = XmtlBuild.empty()
@@ -335,6 +335,14 @@ if __name__ == "__main__":
         HTML_FILES = render_output(dictionary)
         final_pdf_name = click.prompt("Input name for final submittal file")
         create_final_pdf(final_pdf_name, HTML_FILES)
+
+        console.print(f"\nSubmittal PDF '{final_pdf_name}' generated successfully!\n", style="bold green")
+        if not click.confirm("Would you like to generate another submittal?", default=False):
+            console.print("Thank you for using the Submittal Generator! Goodbye!", style="bold green")
+            break
+        console.print("\nStarting new submittal generation...", style="green")
+
+
 
 
 
