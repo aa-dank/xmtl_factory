@@ -22,3 +22,6 @@ images/
 # ===== OS files =====
 .DS_Store
 Thumbs.db
+
+DEMO.mp4
+*.mp4
