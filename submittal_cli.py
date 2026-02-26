@@ -1,5 +1,7 @@
 from rich.console import Console
 from rich.table import Table
+from rich.panel import Panel
+from rich.align import Align
 import click
 from html_to_pdf import create_final_pdf
 from custom_fill import render_output
@@ -298,16 +300,27 @@ def review_dictionary(dictionary, title):
 
 
 if __name__ == "__main__":
-    console.print("Welcome to the Submittal Generator!\n", style="bold green")
+    console.print(r"""
+ __  __     __    __     ______   __            ______   ______     ______     ______   ______     ______     __  __    
+/\_\_\_\   /\ "-./  \   /\__  _\ /\ \          /\  ___\ /\  __ \   /\  ___\   /\__  _\ /\  __ \   /\  == \   /\ \_\ \   
+\/_/\_\/_  \ \ \-./\ \  \/_/\ \/ \ \ \____     \ \  __\ \ \  __ \  \ \ \____  \/_/\ \/ \ \ \/\ \  \ \  __<   \ \____ \  
+  /\_\/\_\  \ \_\ \ \_\    \ \_\  \ \_____\     \ \_\    \ \_\ \_\  \ \_____\    \ \_\  \ \_____\  \ \_\ \_\  \/\_____\ 
+  \/_/\/_/   \/_/  \/_/     \/_/   \/_____/      \/_/     \/_/\/_/   \/_____/     \/_/   \/_____/   \/_/ /_/   \/_____/ 
+""", style="bold green", highlight=False)
+    console.print(Align.center("Submittal transmittal PDF generator", style="italic dim"))
+    console.rule(style="green")
+    console.print(Panel(
+        "[green]This tool streamlines the creation of submittal transmittal PDFs.[/green]\n"
+        "Use a [bold yellow]pre-defined template[/bold yellow] or [bold yellow]input values manually[/bold yellow].",
+        title="[bold yellow]How to use[/bold yellow]",
+        border_style="yellow",
+        padding=(0, 2),
+    ))
+    console.print()
 
-    console.print("This tool is designed to streamline the creation of submittal documents.\nTo use you can either use a pre-defined template or input values manually.", style="green")
-    console.print("If manual input is chosen, you will be prompted to enter various project and submittal details.", style="green")
-    console.print("To find more details about the expected input for each field, refer to the yaml file for examples of inputs for each field.\n", style="green")
-    
-    console.print("This generator will continue until you choose to exit by [CTRL+C]\n", style="red")
-
-    console.print("Project & Submittal Details", style="bold yellow")
     while True:
+        console.rule("[bold yellow]Project & Submittal Details[/bold yellow]", style="yellow")
+        console.print(Align.center("Press [bold red][CTRL+C][/bold red] at any time to exit.", style="dim"))
         default_key = str(click.prompt(
             "To use an xmtl template, input the template key (e.g. 3238), otherwise just hit enter to input values manually",
             default=""
@@ -337,11 +350,16 @@ if __name__ == "__main__":
         final_pdf_name = click.prompt("Input name for final submittal file")
         create_final_pdf(final_pdf_name, HTML_FILES)
 
-        console.print(f"\nSubmittal PDF '{final_pdf_name}' generated successfully!\n", style="bold green")
+        console.rule(style="green")
+        console.print(f"[bold green]✔ Submittal PDF '[cyan]{final_pdf_name}[/cyan]' generated successfully![/bold green]\n")
         if not click.confirm("Would you like to generate another submittal?", default=False):
-            console.print("Thank you for using the Submittal Generator! Goodbye!", style="bold green")
+            console.rule(style="dim")
+            console.print(Align.center("Thank you for using XMTL Factory! Goodbye!", style="bold green"))
+            console.rule(style="dim")
             break
-        console.print("\nStarting new submittal generation...", style="green")
+        console.rule(style="dim")
+        console.print(Align.center("Starting new submittal...", style="italic green"))
+        console.print()
 
 
 
