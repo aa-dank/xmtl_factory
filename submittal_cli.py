@@ -1,3 +1,5 @@
+import re
+
 from rich.console import Console
 from rich.table import Table
 import click
@@ -296,6 +298,32 @@ def review_dictionary(dictionary, title):
         return False
     return True
 
+def submittal_filename(project_number: str, revision: str, submittal_number: str, submittal_title: str) -> str:
+    """
+    Generates a submittal filename based on the project number, revision, submittal number, and title.
+    The format is: {project_number}_{revision}_{submittal_number}_{submittal_title}.pdf
+    :param project_number: The project number.
+    :param revision: The revision number.
+    :param submittal_number: The submittal number.
+    :param submittal_title: The title of the submittal.
+    :return: A formatted filename string.
+    """
+    revision = "0" if not revision else revision
+    filename_str = f"{project_number}_-_{submittal_number}_R{revision}_-_{submittal_title}.pdf"
+    
+    # replace spaces with underscores
+    filename_str = filename_str.replace(" ", "_")
+    # replace '&' with 'and'
+    filename_str = filename_str.replace("&", "and")
+    # replace '%' with 'percent'
+    filename_str = filename_str.replace("%", "percent")
+    # replace ' - ' with '-'
+    filename_str = filename_str.replace(" - ", "-")
+    # remove other illegal characters
+    filename_str = re.sub(r'[\\/:*?"<>|]', '', filename_str)
+    
+    return filename_str
+
 
 if __name__ == "__main__":
     console.print("Welcome to the Submittal Generator!\n", style="bold green")
@@ -334,7 +362,14 @@ if __name__ == "__main__":
             continue
 
         HTML_FILES = render_output(dictionary)
-        final_pdf_name = click.prompt("Input name for final submittal file")
+        #final_pdf_name = click.prompt("Input name for final submittal file")
+        final_pdf_name = submittal_filename(
+            project_number=build.project_number.value,
+            revision=build.revision_number.processed_value,
+            submittal_number=build.submittal_number.value,
+            submittal_title=build.submittal_name.value
+        )
+        console.print(f"\nGenerated submittal filename: {final_pdf_name}\n", style="green")
         create_final_pdf(final_pdf_name, HTML_FILES)
 
         console.print(f"\nSubmittal PDF '{final_pdf_name}' generated successfully!\n", style="bold green")
