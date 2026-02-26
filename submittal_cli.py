@@ -111,8 +111,8 @@ class XmtlBuild:
         is called — validate() or fill_all_fields() will surface any gaps.
         """
         self.project_number        = XmtlBuildField("Project_Number",        project_number,        "Input Project Number (e.g. 3238)",        required=True)
-        self.project_title         = XmtlBuildField("Project_Title",         project_title,         "Input Project Title",         required=True)
-        self.submittal_number      = XmtlBuildField("Submittal_Number",      submittal_number,      "Input Submittal Number",      required=True)
+        self.project_title         = XmtlBuildField("Project_Title",         project_title,         "Input Project Title (e.g. Bay Tree Bookstore - Building Renovation for Student Services)",         required=True)
+        self.submittal_number      = XmtlBuildField("Submittal_Number",      submittal_number,      "Input Submittal Number (e.g. 321313-01)",      required=True)
         self.revision_number       = XmtlBuildField(
             "Revision_Number",
             revision_number,
@@ -120,22 +120,22 @@ class XmtlBuild:
             required=True,
             processor=lambda v: v.strip() if v.strip() else "0"
         )
-        self.specification_section = XmtlBuildField("Specification_Section", specification_section, "Input Specification Section", required=True)
-        self.submittal_name        = XmtlBuildField("Submittal_Name",        submittal_name,        "Input Submittal Name",        required=True)
+        self.specification_section = XmtlBuildField("Specification_Section", specification_section, "Input Specification Section (e.g. 32 13 13 Concrete Pavement)", required=True)
+        self.submittal_name        = XmtlBuildField("Submittal_Name",        submittal_name,        "Input Submittal Name (e.g. Engine Generator Product Data)",        required=True)
         self.date_review_ends      = XmtlBuildField(
             "Date_Review_Ends",
             date_review_ends,
             "Input review end date (MM/DD/YYYY, leave blank to default to two weeks from today)",
             processor=_parse_review_date
         )
-        self.project_manager_name  = XmtlBuildField("Project_Manager",       project_manager_name,  "Input Project Manager Name")
-        self.edp_line1             = XmtlBuildField("EDP_Address_Line_1",    edp_line1,             "Input EDP Name")
-        self.edp_line2             = XmtlBuildField("EDP_Address_Line_2",    edp_line2,             "Input EDP Address Line")
-        self.edp_line3             = XmtlBuildField("EDP_Address_Line_3",    edp_line3,             "Input EDP City, State, Zip")
+        self.project_manager_name  = XmtlBuildField("Project_Manager",       project_manager_name,  "Input Project Manager Name (e.g. John Doe)")
+        self.edp_line1             = XmtlBuildField("EDP_Address_Line_1",    edp_line1,             "Input EDP Name (e.g. EDP Inc.)")
+        self.edp_line2             = XmtlBuildField("EDP_Address_Line_2",    edp_line2,             "Input EDP Address Line (e.g. 123 Main St.)")
+        self.edp_line3             = XmtlBuildField("EDP_Address_Line_3",    edp_line3,             "Input EDP City, State, Zip (e.g. City, ST 12345)")
         self.reviewer_names        = XmtlBuildField(
             "Reviewer_Names",
             reviewer_names,
-            "Input Reviewer Names (semicolon-delimited) (e.g. 'David Jessen, UCSC PP;Jeff Clothier, UCSC PP')",
+            "Input Reviewer Names (semicolon-delimited) (e.g. 'David Jessen, UCSC PP; Jeff Clothier, UCSC PP')",
             processor=lambda v: [name.strip() for name in v.split(";") if name.strip()],
             max_length=540
         )
@@ -347,8 +347,8 @@ if __name__ == "__main__":
     console.print()
 
     while True:
-        console.rule("[bold yellow]Project & Submittal Details[/bold yellow]", style="yellow")
         console.print(Align.center("Press [bold red][CTRL+C][/bold red] at any time to exit.", style="dim"))
+        console.rule("[bold yellow]Project & Submittal Details[/bold yellow]", style="yellow")
         default_key = str(click.prompt(
             "To use an xmtl template, input the template key (e.g. 3238), otherwise just hit enter to input values manually",
             default=""
