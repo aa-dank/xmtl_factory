@@ -328,8 +328,12 @@ def submittal_filename(project_number: str, revision: str, submittal_number: str
 
 def list_template_keys(yaml_path):
     """Return a list of available template keys from an xmtl_templates.yaml file."""
+    if not(yaml_path.is_file()): return
+
     with open(yaml_path, "r") as f:
         defaults = yaml.safe_load(f)
+    
+    if (defaults == None or len(defaults) < 1): return
 
     table = Table(border_style="yellow")
     table.add_column("Template Keys", style="yellow", header_style="bold yellow", no_wrap=True) 
