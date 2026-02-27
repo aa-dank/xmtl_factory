@@ -326,6 +326,18 @@ def submittal_filename(project_number: str, revision: str, submittal_number: str
     
     return filename_str
 
+def list_template_keys(yaml_path):
+    """Return a list of available template keys from an xmtl_templates.yaml file."""
+    with open(yaml_path, "r") as f:
+        defaults = yaml.safe_load(f)
+
+    table = Table(border_style="yellow")
+    table.add_column("Template Keys", style="yellow", header_style="bold yellow", no_wrap=True) 
+    for key in defaults.keys():
+        if key!="KEY": table.add_row(key)
+    console.print((table))
+    #return list(defaults.keys())
+
 
 if __name__ == "__main__":
     console.print(r"""
@@ -349,8 +361,10 @@ if __name__ == "__main__":
     while True:
         console.print(Align.center("Press [bold red][CTRL+C][/bold red] at any time to exit.", style="dim"))
         console.rule("[bold yellow]Project & Submittal Details[/bold yellow]", style="yellow")
+        list_template_keys(_default_templates_path())
+
         default_key = str(click.prompt(
-            "To use an xmtl template, input the template key (e.g. 3238), otherwise just hit enter to input values manually",
+            "\nTo use an xmtl template, input the template key from the table above (e.g. 3238), otherwise just hit enter to input values manually",
             default=""
         ).strip())
 
