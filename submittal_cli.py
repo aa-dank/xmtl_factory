@@ -13,6 +13,8 @@ import yaml
 from pathlib import Path
 import sys
 
+VERSION = "1.0.0"
+
 console = Console()
 
 
@@ -351,7 +353,7 @@ if __name__ == "__main__":
   /\_\/\_\  \ \_\ \ \_\    \ \_\  \ \_____\     \ \_\    \ \_\ \_\  \ \_____\    \ \_\  \ \_____\  \ \_\ \_\  \/\_____\ 
   \/_/\/_/   \/_/  \/_/     \/_/   \/_____/      \/_/     \/_/\/_/   \/_____/     \/_/   \/_____/   \/_/ /_/   \/_____/ 
 """, style="bold green", highlight=False)
-    console.print(Align.center("Submittal transmittal PDF generator", style="italic dim"))
+    console.print(Align.center(f"Submittal transmittal PDF generator v{VERSION}", style="italic dim"))
     console.rule(style="green")
     console.print(Panel(
         "[green]This tool streamlines the creation of submittal transmittal PDFs.[/green]\n"
