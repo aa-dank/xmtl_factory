@@ -126,7 +126,10 @@ def create_final_pdf(final_pdf_name, HTML_FILES):
             raise RuntimeError(f"Missing PDF during merge: {pdf}")
         writer.append(str(pdf))
 
-    final_path = Path(final_pdf_name).resolve()
+    #final_path = Path(final_pdf_name).resolve()
+    downloads_path = (Path.home() / "Downloads").resolve()
+    final_path = downloads_path / final_pdf_name
+
     with open(final_path, "wb") as f:
         writer.write(f)
 
