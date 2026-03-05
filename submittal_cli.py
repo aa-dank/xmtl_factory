@@ -382,7 +382,7 @@ if __name__ == "__main__":
                 create_table_from_list("Current Reviewers", build.reviewer_names.processed_value)
                 console.print("\nNOTE: Reviewer names must be inputted as a semicolon-delimited list", style="bold green")
                 console.print("Example: 'David Jessen, UCSC PP;Jeff Clothier, UCSC PP'", style="green")
-                additional_revs = click.prompt("Input any additional reviewers not listed in the template")
+                additional_revs = click.prompt("Input any additional reviewers not listed in the template. (If no additional reviewers, press ENTER)", default="")
                 build.reviewer_names.value = build.reviewer_names.value + ";" + additional_revs
 
                 console.print("\nSummary of Submittal Inputs", style="bold green")
