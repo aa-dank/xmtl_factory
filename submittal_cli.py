@@ -328,22 +328,11 @@ def submittal_filename(project_number: str, revision: str, submittal_number: str
     
     return filename_str
 
-def list_template_keys(yaml_path):
-    """Return a list of available template keys from an xmtl_templates.yaml file."""
-    if not(yaml_path.is_file()): return
-
-    with open(yaml_path, "r") as f:
-        defaults = yaml.safe_load(f)
-    
-    if (defaults == None or len(defaults) < 1): return
-
+def create_table_from_list(title, input_list):
     table = Table(border_style="yellow")
-    table.add_column("Template Keys", style="yellow", header_style="bold yellow", no_wrap=True) 
-    for key in defaults.keys():
-        if key!="KEY": table.add_row(key)
+    table.add_column(title, style="yellow", header_style="bold yellow", no_wrap=True) 
+    for key in input_list: table.add_row(key)
     console.print((table))
-    #return list(defaults.keys())
-
 
 if __name__ == "__main__":
     console.print(r"""
@@ -367,7 +356,15 @@ if __name__ == "__main__":
     while True:
         console.print(Align.center("Press [bold red][CTRL+C][/bold red] at any time to exit.", style="dim"))
         console.rule("[bold yellow]Project & Submittal Details[/bold yellow]", style="yellow")
-        list_template_keys(_default_templates_path())
+
+        #print out all available keys
+        yaml_path = _default_templates_path()
+
+        if yaml_path.is_file():
+            with open(yaml_path, "r", encoding="utf-8") as f:
+                defaults = yaml.safe_load(f) or {}
+            defaults.pop("KEY", None)
+            if defaults: create_table_from_list("Template Keys", defaults.keys())
 
         default_key = str(click.prompt(
             "\nTo use an xmtl template, input the template key from the table above (e.g. 3238), otherwise just hit enter to input values manually",
@@ -379,6 +376,15 @@ if __name__ == "__main__":
                 build = XmtlBuild.from_yaml(str(_default_templates_path()), default_key)
                 console.print(f"\nXmtl template '{default_key}' loaded. You will be prompted for any missing values.\n", style="bold green")
                 build.fill_all_fields(True)
+
+                #ask for additional reviewers
+                console.print("\n")
+                create_table_from_list("Current Reviewers", build.reviewer_names.processed_value)
+                console.print("\nNOTE: Reviewer names must be inputted as a semicolon-delimited list", style="bold green")
+                console.print("Example: 'David Jessen, UCSC PP;Jeff Clothier, UCSC PP'", style="green")
+                additional_revs = click.prompt("Input any additional reviewers not listed in the template")
+                build.reviewer_names.value = build.reviewer_names.value + ";" + additional_revs
+
                 console.print("\nSummary of Submittal Inputs", style="bold green")
             except KeyError as e:
                 console.print(str(e), style="red")
