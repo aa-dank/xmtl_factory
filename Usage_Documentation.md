@@ -45,6 +45,8 @@ If any values from the template chosen are empty, the program will ask to fill t
 
 - Program will always ask to input review end date
 
+Program will ask for additional reviewers on top of the reviewers from the template
+
 **Verification**
 
 Once all the data is filled in, a summary of inputs will be printed.
