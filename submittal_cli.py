@@ -218,17 +218,21 @@ class XmtlBuild:
 
         if not using_defaults:
             if click.confirm("Does this submittal have an Executive Design Professional (EDP)?", default=False):
-                console.print("\nExample for how to input EDP information: ", style="yellow")
-                console.print("\tEHDD Architecture\n\t1 Pier Ste 2\n\tSan Francisco, CA 94111-2028", style="yellow")
+                console.print(
+                    "\n[yellow]Example for how to input EDP information:\n"
+                    "\tEHDD Architecture\n\t1 Pier Ste 2\n\tSan Francisco, CA 94111-2028[/yellow]",
+                    style = "yellow")
                 self.edp_line1.fill_field()
                 self.edp_line2.fill_field()
                 self.edp_line3.fill_field()
             else:
                 console.print("No EDP information will be included in the submittal.", style="green")
 
-            console.print("\nInput reviewer names as a semicolon-delimited list", style="bold green")
-            console.print("Example: 'David Jessen, UCSC PP;Jeff Clothier, UCSC PP'", style="green")
-            console.print("\nNOTE: Reviewer names must not exceed 2 lines so in total reviewer names must not exceed 540 characters", style="red")
+            console.print(
+                "\n[bold green]Input reviewer names as a semicolon-delimited list[/bold green]\n"
+                "[green]Example:[/green] 'David Jessen, UCSC PP;Jeff Clothier, UCSC PP'\n"
+                "[red]\nNOTE: Reviewer names must not exceed 2 lines so reviewer names must not exceed 540 characters[/red]"
+            )
         #self.reviewer_names.fill_field()
         
             # enforce max length of reviewer names 
@@ -380,8 +384,10 @@ if __name__ == "__main__":
                 #ask for additional reviewers
                 console.print("\n")
                 create_table_from_list("Current Reviewers", build.reviewer_names.processed_value)
-                console.print("\nNOTE: Reviewer names must be inputted as a semicolon-delimited list", style="bold green")
-                console.print("Example: 'David Jessen, UCSC PP;Jeff Clothier, UCSC PP'", style="green")
+                console.print(
+                    "\n[bold green]NOTE: Reviewer names must be inputted as a semicolon-delimited list[/bold green]\n"
+                    "[green]Example: 'David Jessen, UCSC PP;Jeff Clothier, UCSC PP'[/green]"
+                )
                 additional_revs = click.prompt("Input any additional reviewers not listed in the template. (If no additional reviewers, press ENTER)", default="")
                 build.reviewer_names.value = build.reviewer_names.value + ";" + additional_revs
 

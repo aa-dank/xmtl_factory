@@ -53,7 +53,7 @@ Users will be prompted if summary is correct.
 
 - If not, the process will be canceled, and program will start from top.  
 - If summary is correct, then a filename will be generated including the project number, revision & submittal number, and the submittal title    
-  * Output file will be written to the current working directory  
+  * Output file will be saved to the Downloads folder
   * Once output file is created, it can be renamed if need be
 
 When the run completes the CLI prints the path of the new PDF. Open it in any PDF viewer and print or email as needed.
