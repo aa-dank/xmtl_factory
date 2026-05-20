@@ -231,7 +231,7 @@ class XmtlBuild:
             console.print(
                 "\n[bold green]Input reviewer names as a semicolon-delimited list[/bold green]\n"
                 "[green]Example:[/green] 'David Jessen, UCSC PP;Jeff Clothier, UCSC PP'\n"
-                "[red]\nNOTE: Reviewer names must not exceed 2 lines so reviewer names must not exceed 540 characters[/red]"
+                "[yellow]\nNOTE: Reviewer names must not exceed 2 lines so reviewer names must not exceed 540 characters[/yellow]"
             )
         #self.reviewer_names.fill_field()
         
@@ -414,7 +414,7 @@ if __name__ == "__main__":
             submittal_number=build.submittal_number.value,
             submittal_title=build.submittal_name.value
         )
-        console.print(f"\nGenerated submittal filename: {final_pdf_name}\n", style="green")
+        console.print(f"\nGenerating submittal with filename: {final_pdf_name}\n", style="green")
         create_final_pdf(final_pdf_name, HTML_FILES)
 
         console.rule(style="green")
