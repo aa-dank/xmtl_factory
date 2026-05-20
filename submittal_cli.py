@@ -13,7 +13,7 @@ import yaml
 from pathlib import Path
 import sys
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 
 console = Console()
 
@@ -55,7 +55,7 @@ class XmtlBuildField:
     to transform the raw value before it is used in rendering.
     """
 
-    def __init__(self, name, value, prompt, required=False, processor=None, max_length=None):
+    def __init__(self, name, value, prompt, required=False, processor=None, validator=None, invalid_message=None, max_length=None):
         """Initialise the field.
 
         Args:
@@ -64,12 +64,16 @@ class XmtlBuildField:
             prompt:    Text shown to the user when prompting for input.
             required:  If True, fill_field will loop until a non-empty value is entered.
             processor: Optional callable (value: str) -> Any applied by processed_value.
+            validator: Optional callable (value: Any) -> bool used to validate processed_value.
+            invalid_message: Optional string shown when validation fails.
         """
         self.name = name
         self.value = value
         self.prompt = prompt
         self.required = required
         self._processor = processor
+        self._validator = validator
+        self._invalid_message = invalid_message
         self.max_length = max_length
 
     @property
@@ -83,6 +87,13 @@ class XmtlBuildField:
             return self._processor(self.value)
         return self.value
 
+    @property
+    def is_valid(self):
+        """Return True if the field passes validation, or if no validator is configured."""
+        if self._validator is None:
+            return True
+        return bool(self._validator(self.processed_value))
+
     def fill_field(self):
         """Prompt the user for a value if the field is currently empty.
 
@@ -90,13 +101,19 @@ class XmtlBuildField:
         blank. Required field validation and retry logic is handled by
         XmtlBuild.fill_all_fields().
         """
-        if not self.value:
-            self.value = click.prompt(self.prompt, default="")
-            #console.print(f"{self.name} set to: {self.processed_value} \n", style="green")
+        while True:
+            if not self.value:
+                self.value = click.prompt(self.prompt, default="")
+            if not self.value and not self.required:
+                break
+            if self.is_valid:
+                break
+            message = self._invalid_message or f"Invalid value for {self.name}."
+            console.print(message, style="bold red")
+            self.value = ""
 
 class XmtlBuild:
     """Represents all data needed to generate a submittal transmittal PDF.
-
     Each piece of data is stored as an XmtlBuildField, which carries its own
     prompt text, required flag, and optional processor. The class supports
     loading pre-filled data from an xmtl_templates.yaml entry and interactively
@@ -120,7 +137,9 @@ class XmtlBuild:
             revision_number,
             "Input Revision Number, if left blank auto-populated with 0",
             required=True,
-            processor=lambda v: v.strip() if v.strip() else "0"
+            processor=lambda v: v.strip() if v.strip() else "0",
+            validator=lambda v: bool(re.fullmatch(r"\d+(?:\.\d*)?", str(v))),
+            invalid_message="Invalid value for Revision_Number. Please enter only digits and an optional decimal point.\n"
         )
         self.specification_section = XmtlBuildField("Specification_Section", specification_section, "Input Specification Section (e.g. 32 13 13 Concrete Pavement)", required=True)
         self.submittal_name        = XmtlBuildField("Submittal_Name",        submittal_name,        "Input Submittal Name (e.g. Engine Generator Product Data)",        required=True)
@@ -195,7 +214,9 @@ class XmtlBuild:
         """
         return [
             field.name for field in vars(self).values()
-            if isinstance(field, XmtlBuildField) and field.required and not field.processed_value
+            if isinstance(field, XmtlBuildField)
+            and field.required
+            and (not field.processed_value or not field.is_valid)
         ]
 
     @property
