@@ -32,6 +32,13 @@ def _default_templates_path() -> Path:
     return local_path
 
 
+def _parse_revision_number(value: str) -> bool:
+    """Return True when revision matches digits with an optional decimal portion."""
+    if value is None:
+        return False
+    return bool(re.fullmatch(r"\d+(?:\.\d*)?", str(value).strip()))
+
+
 def _parse_review_date(value: str) -> str:
     """Parse a user-supplied date string and return it formatted as MM/DD/YYYY.
 
@@ -45,6 +52,8 @@ def _parse_review_date(value: str) -> str:
         except (ValueError, OverflowError):
             console.print(f"Could not parse date '{value}' — defaulting to two weeks from today.", style="yellow")
     return (datetime.now() + timedelta(weeks=2)).strftime("%m/%d/%Y")
+
+    
 
 
 class XmtlBuildField:
@@ -138,7 +147,7 @@ class XmtlBuild:
             "Input Revision Number, if left blank auto-populated with 0",
             required=True,
             processor=lambda v: v.strip() if v.strip() else "0",
-            validator=lambda v: bool(re.fullmatch(r"\d+(?:\.\d*)?", str(v))),
+            validator=_parse_revision_number,
             invalid_message="Invalid value for Revision_Number. Please enter only digits and an optional decimal point.\n"
         )
         self.specification_section = XmtlBuildField("Specification_Section", specification_section, "Input Specification Section (e.g. 32 13 13 Concrete Pavement)", required=True)
