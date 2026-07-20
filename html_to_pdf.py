@@ -93,7 +93,7 @@ def convert_html(input_html, output_pdf_name, edge_path):
             check=True,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-            timeout=30,
+            timeout=90,
         )
     except subprocess.TimeoutExpired as exc:
         raise RuntimeError(f"Edge PDF conversion timed out for '{input_html}'") from exc
