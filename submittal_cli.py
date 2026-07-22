@@ -13,7 +13,7 @@ import yaml
 from pathlib import Path
 import sys
 
-VERSION = "1.1.0"
+VERSION = "1.2.0"
 
 console = Console()
 
@@ -412,8 +412,9 @@ if __name__ == "__main__":
                 build.fill_all_fields(True)
 
                 #ask for additional reviewers
-                console.print("\n")
-                create_table_from_list("Current Reviewers", build.reviewer_names.processed_value)
+                if build.reviewer_names.processed_value:
+                    console.print("\n")
+                    create_table_from_list("Current Reviewers", build.reviewer_names.processed_value)
                 console.print(
                     "\n[bold green]NOTE: Reviewer names must be inputted as a semicolon-delimited list[/bold green]\n"
                     "[green]Example: 'David Jessen, UCSC PP;Jeff Clothier, UCSC PP'[/green]"
